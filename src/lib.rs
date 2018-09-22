@@ -38,6 +38,11 @@ impl Report {
         self.testsuites.push(testsuite);
     }
 
+    /// Add multiple `TestSuite`s from a Vec
+    pub fn add_testsuites(&mut self, testsuites: &mut Vec<TestSuite>) {
+        self.testsuites.append(testsuites);
+    }
+
     //TODO: Use custom error to not expose xml-rs, maybe via failure
     /// Write the XML version of the Report to the given Writer
     pub fn write_xml<W: Write>(self, sink: W) -> writer::Result<()> {
@@ -141,6 +146,10 @@ impl TestSuite {
 
     pub fn add_testcase(&mut self, testcase: TestCase) {
         self.testcases.push(testcase);
+    }
+
+    pub fn add_testcases(&mut self, testcases: &mut Vec<TestCase>) {
+        self.testcases.append(testcases);
     }
 
     pub fn set_timestamp(&mut self, timestamp: DateTime<Utc>) {
