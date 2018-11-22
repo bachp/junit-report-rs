@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.1.2] - 2018-11-22
+### Changed
+- Change order to `system-out` and `system-err` to conform to new schema
+- Don't add an empty optional properties tag
+
 ## [0.1.1] - 2018-09-22
 ### Added
 - Add functions to add testcases and testsuites from a Vec
