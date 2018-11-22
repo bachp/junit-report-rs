@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+  <testsuite id="0" name="Some Testsuite" package="testsuite/Some Testsuite" tests="3" errors="1" failures="1" hostname="localhost" timestamp="2018-04-21T12:02:00+00:00" time="30">
+    <testcase name="MyTest3" time="15" />
+    <testcase name="Burk" time="10">
+      <failure type="asdfasf" message="asdfajfhk" />
+    </testcase>
+    <testcase name="Blabla" time="5">
+      <error type="git error" message="Could not clone" />
+    </testcase>
+    <system-out />
+    <system-err />
+  </testsuite>
+</testsuites>

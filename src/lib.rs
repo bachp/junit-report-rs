@@ -5,6 +5,50 @@
  */
 
 /// Create JUnit compatible XML reports.
+/// 
+/// ## Example
+/// 
+/// ```rust
+/// 
+///     extern crate junit_report;
+/// 
+///     use junit_report::{Report, TestCase, TestSuite, Duration, TimeZone, Utc};
+///     use std::str;
+/// 
+/// 
+///     let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
+/// 
+///     let mut r = Report::new();
+///     let mut ts1 = TestSuite::new("ts1");
+///     ts1.set_timestamp(timestamp);
+///     let mut ts2 = TestSuite::new("ts2");
+///     ts2.set_timestamp(timestamp);
+/// 
+///     let test_success = TestCase::success("good test", Duration::seconds(15));
+///     let test_error = TestCase::error(
+///         "error test",
+///         Duration::seconds(5),
+///         "git error",
+///         "unable to fetch",
+///     );
+///     let test_failure = TestCase::failure(
+///         "failure test",
+///         Duration::seconds(10),
+///         "assert_eq",
+///         "not equal",
+///     );
+/// 
+///     ts2.add_testcase(test_success);
+///     ts2.add_testcase(test_error);
+///     ts2.add_testcase(test_failure);
+/// 
+///     r.add_testsuite(ts1);
+///     r.add_testsuite(ts2);
+/// 
+///     let mut out: Vec<u8> = Vec::new();
+/// 
+///     r.write_xml(&mut out).unwrap();
+/// ```
 extern crate chrono;
 extern crate xml;
 
@@ -12,9 +56,7 @@ use std::io::Write;
 
 use xml::writer::{self, EmitterConfig, XmlEvent};
 
-pub use chrono::DateTime;
-pub use chrono::Duration;
-use chrono::Utc;
+pub use chrono::{DateTime, Duration, TimeZone, Utc};
 
 /// Root element of a JUnit report
 #[derive(Default)]
@@ -30,21 +72,21 @@ impl Report {
         }
     }
 
-    /// Add a `TestSuite` to this report.
+    /// Add a [`TestSuite`](../struct.TestSuite.html) to this report.
     ///
-    /// The function takes ownership of the supplied TestSuite.
+    /// The function takes ownership of the supplied [`TestSuite`](../struct.TestSuite.html).
     pub fn add_testsuite(&mut self, mut testsuite: TestSuite) {
         testsuite.id = self.testsuites.len();
         self.testsuites.push(testsuite);
     }
 
-    /// Add multiple `TestSuite`s from a Vec
+    /// Add multiple[`TestSuite`s](../struct.TestSuite.html) from a Vec.
     pub fn add_testsuites(&mut self, testsuites: &mut Vec<TestSuite>) {
         self.testsuites.append(testsuites);
     }
 
     //TODO: Use custom error to not expose xml-rs, maybe via failure
-    /// Write the XML version of the Report to the given Writer
+    /// Write the XML version of the Report to the given `Writer`.
     pub fn write_xml<W: Write>(self, sink: W) -> writer::Result<()> {
         let mut ew = EmitterConfig::new()
             .perform_indent(true)
@@ -66,16 +108,8 @@ impl Report {
             )?;
 
             //TODO: support properties
-            ew.write(XmlEvent::start_element("properties"))?;
-            ew.write(XmlEvent::end_element())?;
-
-            //TODO: support system-out
-            ew.write(XmlEvent::start_element("system-out"))?;
-            ew.write(XmlEvent::end_element())?;
-
-            //TODO: support system-err
-            ew.write(XmlEvent::start_element("system-err"))?;
-            ew.write(XmlEvent::end_element())?;
+            //ew.write(XmlEvent::start_element("properties"))?;
+            //ew.write(XmlEvent::end_element())?;
 
             for tc in &ts.testcases {
                 ew.write(
@@ -113,6 +147,14 @@ impl Report {
                 ew.write(XmlEvent::end_element())?;
             }
 
+            //TODO: support system-out
+            ew.write(XmlEvent::start_element("system-out"))?;
+            ew.write(XmlEvent::end_element())?;
+
+            //TODO: support system-err
+            ew.write(XmlEvent::start_element("system-err"))?;
+            ew.write(XmlEvent::end_element())?;
+
             ew.write(XmlEvent::end_element())?;
         }
 
@@ -122,7 +164,7 @@ impl Report {
     }
 }
 
-/// A `TestSuite` groups together several `TestCase`s
+/// A `TestSuite` groups together several [`TestCase`s](../struct.TestCase.html).
 pub struct TestSuite {
     name: String,
     id: usize,
@@ -133,6 +175,7 @@ pub struct TestSuite {
 }
 
 impl TestSuite {
+    /// Create a new `TestSuite` with a given name
     pub fn new(name: &str) -> TestSuite {
         TestSuite {
             id: 0,
@@ -144,14 +187,19 @@ impl TestSuite {
         }
     }
 
+    /// Add a [`TestCase`](../struct.TestCase.html) to the `TestSuite`.
     pub fn add_testcase(&mut self, testcase: TestCase) {
         self.testcases.push(testcase);
     }
 
+    /// Add several [`TestCase`s](../struct.TestCase.html) from a Vec.
     pub fn add_testcases(&mut self, testcases: &mut Vec<TestCase>) {
         self.testcases.append(testcases);
     }
 
+    /// Set the timestamp of the given `TestSuite`.
+    ///
+    /// By default the timestamp is set to the time when the `TestSuite` was created.
     pub fn set_timestamp(&mut self, timestamp: DateTime<Utc>) {
         self.timestamp = timestamp;
     }
@@ -190,7 +238,7 @@ enum TestResult {
 }
 
 impl TestCase {
-    /// Creates a new successful test case
+    /// Creates a new successful `TestCase`
     pub fn success(name: &str, time: Duration) -> TestCase {
         TestCase {
             name: name.into(),
@@ -199,7 +247,7 @@ impl TestCase {
         }
     }
 
-    /// Check if a test case is successful
+    /// Check if a `TestCase` is successful
     pub fn is_success(&self) -> bool {
         match self.result {
             TestResult::Success => true,
@@ -207,9 +255,9 @@ impl TestCase {
         }
     }
 
-    /// Creates a new erroneous test case
+    /// Creates a new erroneous `TestCase`
     ///
-    /// An erroneous test case is one that encountered an unexpected error condition.
+    /// An erroneous `TestCase` is one that encountered an unexpected error condition.
     pub fn error(name: &str, time: Duration, type_: &str, message: &str) -> TestCase {
         TestCase {
             name: name.into(),
@@ -221,7 +269,7 @@ impl TestCase {
         }
     }
 
-    /// Check if a test case is erroneous
+    /// Check if a `TestCase` is erroneous
     pub fn is_error(&self) -> bool {
         match self.result {
             TestResult::Error { .. } => true,
@@ -229,9 +277,9 @@ impl TestCase {
         }
     }
 
-    /// Creates a new failed test case
+    /// Creates a new failed `TestCase`
     ///
-    /// A failed test case is one where an explicit asseriton failed
+    /// A failed `TestCase` is one where an explicit assertion failed
     pub fn failure(name: &str, time: Duration, type_: &str, message: &str) -> TestCase {
         TestCase {
             name: name.into(),
@@ -243,7 +291,7 @@ impl TestCase {
         }
     }
 
-    /// Check if a test case failed
+    /// Check if a `TestCase` failed
     pub fn is_failure(&self) -> bool {
         match self.result {
             TestResult::Failure { .. } => true,
@@ -273,9 +321,8 @@ mod tests {
 
     #[test]
     fn empty_testsuite() {
-        use chrono::{TimeZone, Utc};
         use std::str;
-        use {Report, TestSuite};
+        use {Report, TestSuite, TimeZone, Utc};
 
         let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
 
@@ -294,7 +341,7 @@ mod tests {
 
         assert_eq!(
             str::from_utf8(&out).unwrap(),
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<testsuites>\n  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">\n    <properties />\n    <system-out />\n    <system-err />\n  </testsuite>\n  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">\n    <properties />\n    <system-out />\n    <system-err />\n  </testsuite>\n</testsuites>"
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<testsuites>\n  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">\n    <system-out />\n    <system-err />\n  </testsuite>\n  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">\n    <system-out />\n    <system-err />\n  </testsuite>\n</testsuites>"
         );
     }
 
@@ -343,9 +390,8 @@ mod tests {
 
     #[test]
     fn testcases() {
-        use chrono::{Duration, TimeZone, Utc};
         use std::str;
-        use {Report, TestCase, TestSuite};
+        use {Duration, Report, TestCase, TestSuite, TimeZone, Utc};
 
         let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
 
@@ -382,7 +428,7 @@ mod tests {
 
         assert_eq!(
             str::from_utf8(&out).unwrap(),
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<testsuites>\n  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">\n    <properties />\n    <system-out />\n    <system-err />\n  </testsuite>\n  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"3\" errors=\"1\" failures=\"1\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"30\">\n    <properties />\n    <system-out />\n    <system-err />\n    <testcase name=\"good test\" time=\"15\" />\n    <testcase name=\"error test\" time=\"5\">\n      <error type=\"git error\" message=\"unable to fetch\" />\n    </testcase>\n    <testcase name=\"failure test\" time=\"10\">\n      <failure type=\"assert_eq\" message=\"not equal\" />\n    </testcase>\n  </testsuite>\n</testsuites>"
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<testsuites>\n  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">\n    <system-out />\n    <system-err />\n  </testsuite>\n  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"3\" errors=\"1\" failures=\"1\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"30\">\n    <testcase name=\"good test\" time=\"15\" />\n    <testcase name=\"error test\" time=\"5\">\n      <error type=\"git error\" message=\"unable to fetch\" />\n    </testcase>\n    <testcase name=\"failure test\" time=\"10\">\n      <failure type=\"assert_eq\" message=\"not equal\" />\n    </testcase>\n    <system-out />\n    <system-err />\n  </testsuite>\n</testsuites>"
         );
     }
 }
