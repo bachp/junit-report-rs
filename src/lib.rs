@@ -5,25 +5,23 @@
  */
 
 /// Create JUnit compatible XML reports.
-/// 
+///
 /// ## Example
-/// 
+///
 /// ```rust
-/// 
-///     extern crate junit_report;
-/// 
+///
 ///     use junit_report::{Report, TestCase, TestSuite, Duration, TimeZone, Utc};
 ///     use std::str;
-/// 
-/// 
+///
+///
 ///     let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
-/// 
+///
 ///     let mut r = Report::new();
 ///     let mut ts1 = TestSuite::new("ts1");
 ///     ts1.set_timestamp(timestamp);
 ///     let mut ts2 = TestSuite::new("ts2");
 ///     ts2.set_timestamp(timestamp);
-/// 
+///
 ///     let test_success = TestCase::success("good test", Duration::seconds(15));
 ///     let test_error = TestCase::error(
 ///         "error test",
@@ -37,20 +35,18 @@
 ///         "assert_eq",
 ///         "not equal",
 ///     );
-/// 
+///
 ///     ts2.add_testcase(test_success);
 ///     ts2.add_testcase(test_error);
 ///     ts2.add_testcase(test_failure);
-/// 
+///
 ///     r.add_testsuite(ts1);
 ///     r.add_testsuite(ts2);
-/// 
+///
 ///     let mut out: Vec<u8> = Vec::new();
-/// 
+///
 ///     r.write_xml(&mut out).unwrap();
 /// ```
-extern crate chrono;
-extern crate xml;
 
 use std::io::Write;
 
@@ -76,18 +72,22 @@ impl Report {
     ///
     /// The function takes ownership of the supplied [`TestSuite`](../struct.TestSuite.html).
     pub fn add_testsuite(&mut self, mut testsuite: TestSuite) {
-        testsuite.id = self.testsuites.len();
         self.testsuites.push(testsuite);
     }
 
-    /// Add multiple[`TestSuite`s](../struct.TestSuite.html) from a Vec.
-    pub fn add_testsuites(&mut self, testsuites: &mut Vec<TestSuite>) {
-        self.testsuites.append(testsuites);
+    /// Add multiple[`TestSuite`s](../struct.TestSuite.html) from an iterator.
+    pub fn add_testsuites(&mut self, testsuites: impl IntoIterator<Item = TestSuite>) {
+        self.testsuites.extend(testsuites);
     }
 
     //TODO: Use custom error to not expose xml-rs, maybe via failure
     /// Write the XML version of the Report to the given `Writer`.
-    pub fn write_xml<W: Write>(self, sink: W) -> writer::Result<()> {
+    pub fn write_xml<W: Write>(mut self, sink: W) -> writer::Result<()> {
+        // Enumerate the items in the rest suite
+        for (i,ts) in self.testsuites.iter_mut().enumerate() {
+            ts.id = i;
+        }
+
         let mut ew = EmitterConfig::new()
             .perform_indent(true)
             .create_writer(sink);
@@ -193,8 +193,8 @@ impl TestSuite {
     }
 
     /// Add several [`TestCase`s](../struct.TestCase.html) from a Vec.
-    pub fn add_testcases(&mut self, testcases: &mut Vec<TestCase>) {
-        self.testcases.append(testcases);
+    pub fn add_testcases(&mut self, testcases: impl IntoIterator<Item = TestCase>) {
+        self.testcases.extend(testcases);
     }
 
     /// Set the timestamp of the given `TestSuite`.
@@ -305,7 +305,7 @@ mod tests {
     #[test]
     fn empty_testsuites() {
         use std::str;
-        use Report;
+        use crate::Report;
 
         let r = Report::new();
 
@@ -320,9 +320,9 @@ mod tests {
     }
 
     #[test]
-    fn empty_testsuite() {
+    fn add_empty_testsuite_single() {
         use std::str;
-        use {Report, TestSuite, TimeZone, Utc};
+        use crate::{Report, TestSuite, TimeZone, Utc};
 
         let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
 
@@ -346,8 +346,35 @@ mod tests {
     }
 
     #[test]
+    fn add_empty_testsuite_batch() {
+        use std::str;
+        use crate::{Report, TestSuite, TimeZone, Utc};
+
+        let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
+
+        let mut r = Report::new();
+        let mut ts1 = TestSuite::new("ts1");
+        ts1.set_timestamp(timestamp);
+        let mut ts2 = TestSuite::new("ts2");
+        ts2.set_timestamp(timestamp);
+
+        let v = vec![ts1, ts2];
+
+        r.add_testsuites(v);
+
+        let mut out: Vec<u8> = Vec::new();
+
+        r.write_xml(&mut out).unwrap();
+
+        assert_eq!(
+            str::from_utf8(&out).unwrap(),
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<testsuites>\n  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">\n    <system-out />\n    <system-err />\n  </testsuite>\n  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">\n    <system-out />\n    <system-err />\n  </testsuite>\n</testsuites>"
+        );
+    }
+
+    #[test]
     fn count_tests() {
-        use {Duration, TestCase, TestSuite};
+        use crate::{Duration, TestCase, TestSuite};
 
         let mut ts = TestSuite::new("ts");
 
@@ -391,7 +418,7 @@ mod tests {
     #[test]
     fn testcases() {
         use std::str;
-        use {Duration, Report, TestCase, TestSuite, TimeZone, Utc};
+        use crate::{Duration, Report, TestCase, TestSuite, TimeZone, Utc};
 
         let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
 
