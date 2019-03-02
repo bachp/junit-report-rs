@@ -55,7 +55,7 @@ use xml::writer::{self, EmitterConfig, XmlEvent};
 pub use chrono::{DateTime, Duration, TimeZone, Utc};
 
 /// Root element of a JUnit report
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 pub struct Report {
     testsuites: Vec<TestSuite>,
 }
@@ -71,7 +71,7 @@ impl Report {
     /// Add a [`TestSuite`](../struct.TestSuite.html) to this report.
     ///
     /// The function takes ownership of the supplied [`TestSuite`](../struct.TestSuite.html).
-    pub fn add_testsuite(&mut self, mut testsuite: TestSuite) {
+    pub fn add_testsuite(&mut self, testsuite: TestSuite) {
         self.testsuites.push(testsuite);
     }
 
@@ -82,21 +82,16 @@ impl Report {
 
     //TODO: Use custom error to not expose xml-rs, maybe via failure
     /// Write the XML version of the Report to the given `Writer`.
-    pub fn write_xml<W: Write>(mut self, sink: W) -> writer::Result<()> {
-        // Enumerate the items in the rest suite
-        for (i,ts) in self.testsuites.iter_mut().enumerate() {
-            ts.id = i;
-        }
-
+    pub fn write_xml<W: Write>(&self, sink: W) -> writer::Result<()> {
         let mut ew = EmitterConfig::new()
             .perform_indent(true)
             .create_writer(sink);
         ew.write(XmlEvent::start_element("testsuites"))?;
 
-        for ts in &self.testsuites {
+        for (id, ts) in self.testsuites.iter().enumerate() {
             ew.write(
                 XmlEvent::start_element("testsuite")
-                    .attr("id", &format!("{}", &ts.id))
+                    .attr("id", &format!("{}", id))
                     .attr("name", &ts.name)
                     .attr("package", &ts.package)
                     .attr("tests", &format!("{}", &ts.tests()))
@@ -165,6 +160,7 @@ impl Report {
 }
 
 /// A `TestSuite` groups together several [`TestCase`s](../struct.TestCase.html).
+#[derive(Debug, Clone)]
 pub struct TestSuite {
     name: String,
     id: usize,
@@ -224,6 +220,7 @@ impl TestSuite {
 }
 
 /// One single test case
+#[derive(Debug, Clone)]
 pub struct TestCase {
     name: String,
     time: Duration,
@@ -231,6 +228,7 @@ pub struct TestCase {
 }
 
 /// Result of a test case
+#[derive(Debug, Clone)]
 enum TestResult {
     Success,
     Error { type_: String, message: String },
