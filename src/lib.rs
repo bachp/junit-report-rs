@@ -163,7 +163,6 @@ impl Report {
 #[derive(Debug, Clone)]
 pub struct TestSuite {
     name: String,
-    id: usize,
     package: String,
     timestamp: DateTime<Utc>,
     hostname: String,
@@ -174,7 +173,6 @@ impl TestSuite {
     /// Create a new `TestSuite` with a given name
     pub fn new(name: &str) -> TestSuite {
         TestSuite {
-            id: 0,
             hostname: "localhost".into(),
             package: format!("testsuite/{}", &name),
             name: name.into(),
