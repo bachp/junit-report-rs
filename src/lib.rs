@@ -50,12 +50,13 @@
 
 use std::io::Write;
 
+use derive_getters::Getters;
 use xml::writer::{self, EmitterConfig, XmlEvent};
 
 pub use chrono::{DateTime, Duration, TimeZone, Utc};
 
 /// Root element of a JUnit report
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Getters)]
 pub struct Report {
     testsuites: Vec<TestSuite>,
 }
@@ -160,7 +161,7 @@ impl Report {
 }
 
 /// A `TestSuite` groups together several [`TestCase`s](../struct.TestCase.html).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Getters)]
 pub struct TestSuite {
     name: String,
     package: String,
@@ -218,7 +219,7 @@ impl TestSuite {
 }
 
 /// One single test case
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Getters)]
 pub struct TestCase {
     name: String,
     time: Duration,
@@ -227,7 +228,7 @@ pub struct TestCase {
 
 /// Result of a test case
 #[derive(Debug, Clone)]
-enum TestResult {
+pub enum TestResult {
     Success,
     Error { type_: String, message: String },
     Failure { type_: String, message: String },
