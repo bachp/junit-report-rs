@@ -10,9 +10,9 @@ readme = "README.md"
 edition = "2018"
 
 [dependencies]
-chrono = "0.4.6"
+chrono = "0.4.7"
 xml-rs = "0.8.0"
-derive-getters = "0.0.7"
+derive-getters = "0.0.8"
 
 [dev-dependencies]
-commandspec = "0.11"
+commandspec = "0.12.2"
