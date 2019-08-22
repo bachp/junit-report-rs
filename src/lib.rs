@@ -55,6 +55,16 @@ use xml::writer::{self, EmitterConfig, XmlEvent};
 
 pub use chrono::{DateTime, Duration, TimeZone, Utc};
 
+fn decimal_seconds(d: &Duration) -> f64 {
+    if let Some(n) = d.num_nanoseconds() {
+        n as f64 / 1_000_000_000.0
+    } else if let Some(n) = d.num_microseconds() {
+        n as f64 / 1_000_000.0
+    } else {
+        d.num_milliseconds() as f64 / 1_000.0
+    }
+}
+
 /// Root element of a JUnit report
 #[derive(Default, Debug, Clone, Getters)]
 pub struct Report {
@@ -100,7 +110,7 @@ impl Report {
                     .attr("failures", &format!("{}", &ts.failures()))
                     .attr("hostname", &ts.hostname)
                     .attr("timestamp", &ts.timestamp.to_rfc3339())
-                    .attr("time", &format!("{}", &ts.time().num_seconds())),
+                    .attr("time", &format!("{}", decimal_seconds(&ts.time()))),
             )?;
 
             //TODO: support properties
@@ -111,7 +121,7 @@ impl Report {
                 ew.write(
                     XmlEvent::start_element("testcase")
                         .attr("name", &tc.name)
-                        .attr("time", &format!("{}", &tc.time.num_seconds())),
+                        .attr("time", &format!("{}", decimal_seconds(&tc.time))),
                 )?;
 
                 match tc.result {
@@ -299,9 +309,12 @@ impl TestCase {
 
 #[cfg(test)]
 mod tests {
+    pub fn normalize(out: Vec<u8>) -> String {
+        String::from_utf8(out).unwrap().replace("\r\n","\n")
+    }
+
     #[test]
     fn empty_testsuites() {
-        use std::str;
         use crate::Report;
 
         let r = Report::new();
@@ -311,14 +324,13 @@ mod tests {
         r.write_xml(&mut out).unwrap();
 
         assert_eq!(
-            str::from_utf8(&out).unwrap(),
+            normalize(out),
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<testsuites />"
         );
     }
 
     #[test]
     fn add_empty_testsuite_single() {
-        use std::str;
         use crate::{Report, TestSuite, TimeZone, Utc};
 
         let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
@@ -337,14 +349,13 @@ mod tests {
         r.write_xml(&mut out).unwrap();
 
         assert_eq!(
-            str::from_utf8(&out).unwrap(),
+            normalize(out),
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<testsuites>\n  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">\n    <system-out />\n    <system-err />\n  </testsuite>\n  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">\n    <system-out />\n    <system-err />\n  </testsuite>\n</testsuites>"
         );
     }
 
     #[test]
     fn add_empty_testsuite_batch() {
-        use std::str;
         use crate::{Report, TestSuite, TimeZone, Utc};
 
         let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
@@ -364,7 +375,7 @@ mod tests {
         r.write_xml(&mut out).unwrap();
 
         assert_eq!(
-            str::from_utf8(&out).unwrap(),
+            normalize(out),
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<testsuites>\n  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">\n    <system-out />\n    <system-err />\n  </testsuite>\n  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">\n    <system-out />\n    <system-err />\n  </testsuite>\n</testsuites>"
         );
     }
@@ -375,7 +386,7 @@ mod tests {
 
         let mut ts = TestSuite::new("ts");
 
-        let tc1 = TestCase::success("mysuccess", Duration::seconds(6));
+        let tc1 = TestCase::success("mysuccess", Duration::milliseconds(6001));
         let tc2 = TestCase::error(
             "myerror",
             Duration::seconds(6),
@@ -414,7 +425,6 @@ mod tests {
 
     #[test]
     fn testcases() {
-        use std::str;
         use crate::{Duration, Report, TestCase, TestSuite, TimeZone, Utc};
 
         let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
@@ -425,7 +435,7 @@ mod tests {
         let mut ts2 = TestSuite::new("ts2");
         ts2.set_timestamp(timestamp);
 
-        let test_success = TestCase::success("good test", Duration::seconds(15));
+        let test_success = TestCase::success("good test", Duration::milliseconds(15001));
         let test_error = TestCase::error(
             "error test",
             Duration::seconds(5),
@@ -451,8 +461,8 @@ mod tests {
         r.write_xml(&mut out).unwrap();
 
         assert_eq!(
-            str::from_utf8(&out).unwrap(),
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<testsuites>\n  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">\n    <system-out />\n    <system-err />\n  </testsuite>\n  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"3\" errors=\"1\" failures=\"1\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"30\">\n    <testcase name=\"good test\" time=\"15\" />\n    <testcase name=\"error test\" time=\"5\">\n      <error type=\"git error\" message=\"unable to fetch\" />\n    </testcase>\n    <testcase name=\"failure test\" time=\"10\">\n      <failure type=\"assert_eq\" message=\"not equal\" />\n    </testcase>\n    <system-out />\n    <system-err />\n  </testsuite>\n</testsuites>"
+            normalize(out),
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<testsuites>\n  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">\n    <system-out />\n    <system-err />\n  </testsuite>\n  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"3\" errors=\"1\" failures=\"1\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"30.001\">\n    <testcase name=\"good test\" time=\"15.001\" />\n    <testcase name=\"error test\" time=\"5\">\n      <error type=\"git error\" message=\"unable to fetch\" />\n    </testcase>\n    <testcase name=\"failure test\" time=\"10\">\n      <failure type=\"assert_eq\" message=\"not equal\" />\n    </testcase>\n    <system-out />\n    <system-err />\n  </testsuite>\n</testsuites>"
         );
     }
 }

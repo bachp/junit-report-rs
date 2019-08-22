@@ -13,7 +13,6 @@ fn reference_report() {
     use junit_report::{Report, TestCase, TestSuite};
     use std::fs::File;
     use std::io::Read;
-    use std::str;
 
     let timestamp = Utc.ymd(2018, 4, 21).and_hms(12, 02, 0);
 
@@ -45,12 +44,13 @@ fn reference_report() {
 
     r.write_xml(&mut out).unwrap();
 
-    let report = str::from_utf8(&out).unwrap();
+    let report = String::from_utf8(out).unwrap().replace("\r\n","\n");
 
     let mut reference = String::new();
 
     let mut f = File::open("tests/reference.xml").unwrap();
     f.read_to_string(&mut reference).unwrap();
+    let reference = reference.replace("\r\n","\n");
 
     assert_eq!(report, reference);
 }
