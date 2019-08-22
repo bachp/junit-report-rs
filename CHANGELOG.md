@@ -7,10 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Fixed
 - Testsuite id is now properly set even when using `add_testsuites`
+- Unittests now work in Windows too
 
 ### Changed
 - Crate now uses the Rust 2018 edition
 - The batch methods (`add_testsuites`, `add_testcases`) now accept any iterators, not just `Vec`
+- Durations are now decimals as per spec
 
 ## [0.1.2] - 2018-11-22
 ### Changed
