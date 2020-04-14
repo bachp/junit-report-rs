@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.2.1] - 2020-04-14
+### Changed
+- Make sure all examples in the readme are run
+- Update dependencies
+
 ## [0.2.0] - 2019-08-19
 ### Fixed
 - Testsuite id is now properly set even when using `add_testsuites`
