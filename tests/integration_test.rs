@@ -44,13 +44,13 @@ fn reference_report() {
 
     r.write_xml(&mut out).unwrap();
 
-    let report = String::from_utf8(out).unwrap().replace("\r\n","\n");
+    let report = String::from_utf8(out).unwrap().replace("\r\n", "\n");
 
     let mut reference = String::new();
 
     let mut f = File::open("tests/reference.xml").unwrap();
     f.read_to_string(&mut reference).unwrap();
-    let reference = reference.replace("\r\n","\n");
+    let reference = reference.replace("\r\n", "\n");
 
     assert_eq!(report, reference);
 }

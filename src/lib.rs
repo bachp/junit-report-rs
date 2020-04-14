@@ -47,7 +47,6 @@
 ///
 ///     r.write_xml(&mut out).unwrap();
 /// ```
-
 use std::io::Write;
 
 use derive_getters::Getters;
@@ -307,10 +306,14 @@ impl TestCase {
     }
 }
 
+// Make sure the readme is tested too
+#[cfg(doctest)]
+doc_comment::doctest!("../README.md");
+
 #[cfg(test)]
 mod tests {
     pub fn normalize(out: Vec<u8>) -> String {
-        String::from_utf8(out).unwrap().replace("\r\n","\n")
+        String::from_utf8(out).unwrap().replace("\r\n", "\n")
     }
 
     #[test]
