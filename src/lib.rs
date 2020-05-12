@@ -126,7 +126,7 @@ impl Report {
                             .attr("classname", classname)
                             .attr("time", &format!("{}", decimal_seconds(&tc.time))),
                     )?;
-                }else{
+                } else {
                     ew.write(
                         XmlEvent::start_element("testcase")
                             .attr("name", &tc.name)
@@ -277,7 +277,13 @@ impl TestCase {
     /// Creates a new erroneous `TestCase`
     ///
     /// An erroneous `TestCase` is one that encountered an unexpected error condition.
-    pub fn error(name: &str, time: Duration, type_: &str, message: &str, classname: Option<String>) -> TestCase {
+    pub fn error(
+        name: &str,
+        time: Duration,
+        type_: &str,
+        message: &str,
+        classname: Option<String>,
+    ) -> TestCase {
         TestCase {
             name: name.into(),
             time,
@@ -300,7 +306,13 @@ impl TestCase {
     /// Creates a new failed `TestCase`
     ///
     /// A failed `TestCase` is one where an explicit assertion failed
-    pub fn failure(name: &str, time: Duration, type_: &str, message: &str, classname: Option<String>) -> TestCase {
+    pub fn failure(
+        name: &str,
+        time: Duration,
+        type_: &str,
+        message: &str,
+        classname: Option<String>,
+    ) -> TestCase {
         TestCase {
             name: name.into(),
             time,
@@ -455,7 +467,11 @@ mod tests {
         let mut ts2 = TestSuite::new("ts2");
         ts2.set_timestamp(timestamp);
 
-        let test_success = TestCase::success("good test", Duration::milliseconds(15001), Some("MyClass".to_string()));
+        let test_success = TestCase::success(
+            "good test",
+            Duration::milliseconds(15001),
+            Some("MyClass".to_string()),
+        );
         let test_error = TestCase::error(
             "error test",
             Duration::seconds(5),
