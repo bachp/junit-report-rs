@@ -22,18 +22,20 @@
 ///     let mut ts2 = TestSuite::new("ts2");
 ///     ts2.set_timestamp(timestamp);
 ///
-///     let test_success = TestCase::success("good test", Duration::seconds(15));
+///     let test_success = TestCase::success("good test", Duration::seconds(15), None);
 ///     let test_error = TestCase::error(
 ///         "error test",
 ///         Duration::seconds(5),
 ///         "git error",
 ///         "unable to fetch",
+///         None,
 ///     );
 ///     let test_failure = TestCase::failure(
 ///         "failure test",
 ///         Duration::seconds(10),
 ///         "assert_eq",
 ///         "not equal",
+///         Some("classname".to_string()),
 ///     );
 ///
 ///     ts2.add_testcase(test_success);
@@ -117,11 +119,20 @@ impl Report {
             //ew.write(XmlEvent::end_element())?;
 
             for tc in &ts.testcases {
-                ew.write(
-                    XmlEvent::start_element("testcase")
-                        .attr("name", &tc.name)
-                        .attr("time", &format!("{}", decimal_seconds(&tc.time))),
-                )?;
+                if let Some(classname) = &tc.classname {
+                    ew.write(
+                        XmlEvent::start_element("testcase")
+                            .attr("name", &tc.name)
+                            .attr("classname", classname)
+                            .attr("time", &format!("{}", decimal_seconds(&tc.time))),
+                    )?;
+                }else{
+                    ew.write(
+                        XmlEvent::start_element("testcase")
+                            .attr("name", &tc.name)
+                            .attr("time", &format!("{}", decimal_seconds(&tc.time))),
+                    )?;
+                }
 
                 match tc.result {
                     TestResult::Success => {}
@@ -232,7 +243,8 @@ impl TestSuite {
 pub struct TestCase {
     name: String,
     time: Duration,
-    result: TestResult, //TODO: support classname
+    result: TestResult,
+    classname: Option<String>,
 }
 
 /// Result of a test case
@@ -245,11 +257,12 @@ pub enum TestResult {
 
 impl TestCase {
     /// Creates a new successful `TestCase`
-    pub fn success(name: &str, time: Duration) -> TestCase {
+    pub fn success(name: &str, time: Duration, classname: Option<String>) -> TestCase {
         TestCase {
             name: name.into(),
             time,
             result: TestResult::Success,
+            classname,
         }
     }
 
@@ -264,7 +277,7 @@ impl TestCase {
     /// Creates a new erroneous `TestCase`
     ///
     /// An erroneous `TestCase` is one that encountered an unexpected error condition.
-    pub fn error(name: &str, time: Duration, type_: &str, message: &str) -> TestCase {
+    pub fn error(name: &str, time: Duration, type_: &str, message: &str, classname: Option<String>) -> TestCase {
         TestCase {
             name: name.into(),
             time,
@@ -272,6 +285,7 @@ impl TestCase {
                 type_: type_.into(),
                 message: message.into(),
             },
+            classname,
         }
     }
 
@@ -286,7 +300,7 @@ impl TestCase {
     /// Creates a new failed `TestCase`
     ///
     /// A failed `TestCase` is one where an explicit assertion failed
-    pub fn failure(name: &str, time: Duration, type_: &str, message: &str) -> TestCase {
+    pub fn failure(name: &str, time: Duration, type_: &str, message: &str, classname: Option<String>) -> TestCase {
         TestCase {
             name: name.into(),
             time,
@@ -294,6 +308,7 @@ impl TestCase {
                 type_: type_.into(),
                 message: message.into(),
             },
+            classname,
         }
     }
 
@@ -389,18 +404,20 @@ mod tests {
 
         let mut ts = TestSuite::new("ts");
 
-        let tc1 = TestCase::success("mysuccess", Duration::milliseconds(6001));
+        let tc1 = TestCase::success("mysuccess", Duration::milliseconds(6001), None);
         let tc2 = TestCase::error(
             "myerror",
             Duration::seconds(6),
             "Some Error",
             "An Error happened",
+            None,
         );
         let tc3 = TestCase::failure(
             "myerror",
             Duration::seconds(6),
             "Some failure",
             "A Failure happened",
+            None,
         );
 
         assert_eq!(0, ts.tests());
@@ -438,18 +455,20 @@ mod tests {
         let mut ts2 = TestSuite::new("ts2");
         ts2.set_timestamp(timestamp);
 
-        let test_success = TestCase::success("good test", Duration::milliseconds(15001));
+        let test_success = TestCase::success("good test", Duration::milliseconds(15001), Some("MyClass".to_string()));
         let test_error = TestCase::error(
             "error test",
             Duration::seconds(5),
             "git error",
             "unable to fetch",
+            None,
         );
         let test_failure = TestCase::failure(
             "failure test",
             Duration::seconds(10),
             "assert_eq",
             "not equal",
+            None,
         );
 
         ts2.add_testcase(test_success);
@@ -465,7 +484,7 @@ mod tests {
 
         assert_eq!(
             normalize(out),
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<testsuites>\n  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">\n    <system-out />\n    <system-err />\n  </testsuite>\n  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"3\" errors=\"1\" failures=\"1\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"30.001\">\n    <testcase name=\"good test\" time=\"15.001\" />\n    <testcase name=\"error test\" time=\"5\">\n      <error type=\"git error\" message=\"unable to fetch\" />\n    </testcase>\n    <testcase name=\"failure test\" time=\"10\">\n      <failure type=\"assert_eq\" message=\"not equal\" />\n    </testcase>\n    <system-out />\n    <system-err />\n  </testsuite>\n</testsuites>"
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<testsuites>\n  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">\n    <system-out />\n    <system-err />\n  </testsuite>\n  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"3\" errors=\"1\" failures=\"1\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"30.001\">\n    <testcase name=\"good test\" classname=\"MyClass\" time=\"15.001\" />\n    <testcase name=\"error test\" time=\"5\">\n      <error type=\"git error\" message=\"unable to fetch\" />\n    </testcase>\n    <testcase name=\"failure test\" time=\"10\">\n      <failure type=\"assert_eq\" message=\"not equal\" />\n    </testcase>\n    <system-out />\n    <system-err />\n  </testsuite>\n</testsuites>"
         );
     }
 }
