@@ -9,8 +9,7 @@ extern crate junit_report;
 
 #[test]
 fn reference_report() {
-    use chrono::{Duration, TimeZone, Utc};
-    use junit_report::{Report, TestCase, TestSuite};
+    use junit_report::{Duration, Report, TestCase, TestSuite, TimeZone, Utc};
     use std::fs::File;
     use std::io::Read;
 
@@ -78,8 +77,7 @@ fn validate_reference_xml_schema() {
 
 #[test]
 fn validate_generated_xml_schema() {
-    use chrono::{Duration, TimeZone, Utc};
-    use junit_report::{Report, TestCase, TestSuite};
+    use junit_report::{Duration, Report, TestCase, TestSuite, TimeZone, Utc};
     use std::fs::File;
 
     let timestamp = Utc.ymd(2018, 4, 21).and_hms(12, 02, 0);

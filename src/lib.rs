@@ -11,7 +11,6 @@
 /// ```rust
 ///
 ///     use junit_report::{Report, TestCase, TestSuite, Duration, TimeZone, Utc};
-///     use std::str;
 ///
 ///
 ///     let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
@@ -49,293 +48,13 @@
 ///
 ///     r.write_xml(&mut out).unwrap();
 /// ```
-use std::io::Write;
-
-use derive_getters::Getters;
-use xml::writer::{self, EmitterConfig, XmlEvent};
-
 pub use chrono::{DateTime, Duration, TimeZone, Utc};
 
-fn decimal_seconds(d: &Duration) -> f64 {
-    if let Some(n) = d.num_nanoseconds() {
-        n as f64 / 1_000_000_000.0
-    } else if let Some(n) = d.num_microseconds() {
-        n as f64 / 1_000_000.0
-    } else {
-        d.num_milliseconds() as f64 / 1_000.0
-    }
-}
+mod collections;
+mod reports;
 
-/// Root element of a JUnit report
-#[derive(Default, Debug, Clone, Getters)]
-pub struct Report {
-    testsuites: Vec<TestSuite>,
-}
-
-impl Report {
-    /// Create a new empty Report
-    pub fn new() -> Report {
-        Report {
-            testsuites: Vec::new(),
-        }
-    }
-
-    /// Add a [`TestSuite`](../struct.TestSuite.html) to this report.
-    ///
-    /// The function takes ownership of the supplied [`TestSuite`](../struct.TestSuite.html).
-    pub fn add_testsuite(&mut self, testsuite: TestSuite) {
-        self.testsuites.push(testsuite);
-    }
-
-    /// Add multiple[`TestSuite`s](../struct.TestSuite.html) from an iterator.
-    pub fn add_testsuites(&mut self, testsuites: impl IntoIterator<Item = TestSuite>) {
-        self.testsuites.extend(testsuites);
-    }
-
-    //TODO: Use custom error to not expose xml-rs, maybe via failure
-    /// Write the XML version of the Report to the given `Writer`.
-    pub fn write_xml<W: Write>(&self, sink: W) -> writer::Result<()> {
-        let mut ew = EmitterConfig::new()
-            .perform_indent(true)
-            .create_writer(sink);
-        ew.write(XmlEvent::start_element("testsuites"))?;
-
-        for (id, ts) in self.testsuites.iter().enumerate() {
-            ew.write(
-                XmlEvent::start_element("testsuite")
-                    .attr("id", &format!("{}", id))
-                    .attr("name", &ts.name)
-                    .attr("package", &ts.package)
-                    .attr("tests", &format!("{}", &ts.tests()))
-                    .attr("errors", &format!("{}", &ts.errors()))
-                    .attr("failures", &format!("{}", &ts.failures()))
-                    .attr("hostname", &ts.hostname)
-                    .attr("timestamp", &ts.timestamp.to_rfc3339())
-                    .attr("time", &format!("{}", decimal_seconds(&ts.time()))),
-            )?;
-
-            //TODO: support properties
-            //ew.write(XmlEvent::start_element("properties"))?;
-            //ew.write(XmlEvent::end_element())?;
-
-            for tc in &ts.testcases {
-                if let Some(classname) = &tc.classname {
-                    ew.write(
-                        XmlEvent::start_element("testcase")
-                            .attr("name", &tc.name)
-                            .attr("classname", classname)
-                            .attr("time", &format!("{}", decimal_seconds(&tc.time))),
-                    )?;
-                } else {
-                    ew.write(
-                        XmlEvent::start_element("testcase")
-                            .attr("name", &tc.name)
-                            .attr("time", &format!("{}", decimal_seconds(&tc.time))),
-                    )?;
-                }
-
-                match tc.result {
-                    TestResult::Success => {}
-                    TestResult::Error {
-                        ref type_,
-                        ref message,
-                    } => {
-                        ew.write(
-                            XmlEvent::start_element("error")
-                                .attr("type", &type_)
-                                .attr("message", &message),
-                        )?;
-                        ew.write(XmlEvent::end_element())?;
-                    }
-                    TestResult::Failure {
-                        ref type_,
-                        ref message,
-                    } => {
-                        ew.write(
-                            XmlEvent::start_element("failure")
-                                .attr("type", &type_)
-                                .attr("message", &message),
-                        )?;
-                        ew.write(XmlEvent::end_element())?;
-                    }
-                };
-
-                ew.write(XmlEvent::end_element())?;
-            }
-
-            //TODO: support system-out
-            ew.write(XmlEvent::start_element("system-out"))?;
-            ew.write(XmlEvent::end_element())?;
-
-            //TODO: support system-err
-            ew.write(XmlEvent::start_element("system-err"))?;
-            ew.write(XmlEvent::end_element())?;
-
-            ew.write(XmlEvent::end_element())?;
-        }
-
-        ew.write(XmlEvent::end_element())?;
-
-        Ok(())
-    }
-}
-
-/// A `TestSuite` groups together several [`TestCase`s](../struct.TestCase.html).
-#[derive(Debug, Clone, Getters)]
-pub struct TestSuite {
-    name: String,
-    package: String,
-    timestamp: DateTime<Utc>,
-    hostname: String,
-    testcases: Vec<TestCase>,
-}
-
-impl TestSuite {
-    /// Create a new `TestSuite` with a given name
-    pub fn new(name: &str) -> TestSuite {
-        TestSuite {
-            hostname: "localhost".into(),
-            package: format!("testsuite/{}", &name),
-            name: name.into(),
-            timestamp: Utc::now(),
-            testcases: Vec::new(),
-        }
-    }
-
-    /// Add a [`TestCase`](../struct.TestCase.html) to the `TestSuite`.
-    pub fn add_testcase(&mut self, testcase: TestCase) {
-        self.testcases.push(testcase);
-    }
-
-    /// Add several [`TestCase`s](../struct.TestCase.html) from a Vec.
-    pub fn add_testcases(&mut self, testcases: impl IntoIterator<Item = TestCase>) {
-        self.testcases.extend(testcases);
-    }
-
-    /// Set the timestamp of the given `TestSuite`.
-    ///
-    /// By default the timestamp is set to the time when the `TestSuite` was created.
-    pub fn set_timestamp(&mut self, timestamp: DateTime<Utc>) {
-        self.timestamp = timestamp;
-    }
-
-    fn tests(&self) -> usize {
-        self.testcases.len()
-    }
-
-    fn errors(&self) -> usize {
-        self.testcases.iter().filter(|x| x.is_error()).count()
-    }
-
-    fn failures(&self) -> usize {
-        self.testcases.iter().filter(|x| x.is_failure()).count()
-    }
-
-    fn time(&self) -> Duration {
-        self.testcases
-            .iter()
-            .fold(Duration::zero(), |sum, d| sum + d.time)
-    }
-}
-
-/// One single test case
-#[derive(Debug, Clone, Getters)]
-pub struct TestCase {
-    name: String,
-    time: Duration,
-    result: TestResult,
-    classname: Option<String>,
-}
-
-/// Result of a test case
-#[derive(Debug, Clone)]
-pub enum TestResult {
-    Success,
-    Error { type_: String, message: String },
-    Failure { type_: String, message: String },
-}
-
-impl TestCase {
-    /// Creates a new successful `TestCase`
-    pub fn success(name: &str, time: Duration, classname: Option<String>) -> TestCase {
-        TestCase {
-            name: name.into(),
-            time,
-            result: TestResult::Success,
-            classname,
-        }
-    }
-
-    /// Check if a `TestCase` is successful
-    pub fn is_success(&self) -> bool {
-        match self.result {
-            TestResult::Success => true,
-            _ => false,
-        }
-    }
-
-    /// Creates a new erroneous `TestCase`
-    ///
-    /// An erroneous `TestCase` is one that encountered an unexpected error condition.
-    pub fn error(
-        name: &str,
-        time: Duration,
-        type_: &str,
-        message: &str,
-        classname: Option<String>,
-    ) -> TestCase {
-        TestCase {
-            name: name.into(),
-            time,
-            result: TestResult::Error {
-                type_: type_.into(),
-                message: message.into(),
-            },
-            classname,
-        }
-    }
-
-    /// Check if a `TestCase` is erroneous
-    pub fn is_error(&self) -> bool {
-        match self.result {
-            TestResult::Error { .. } => true,
-            _ => false,
-        }
-    }
-
-    /// Creates a new failed `TestCase`
-    ///
-    /// A failed `TestCase` is one where an explicit assertion failed
-    pub fn failure(
-        name: &str,
-        time: Duration,
-        type_: &str,
-        message: &str,
-        classname: Option<String>,
-    ) -> TestCase {
-        TestCase {
-            name: name.into(),
-            time,
-            result: TestResult::Failure {
-                type_: type_.into(),
-                message: message.into(),
-            },
-            classname,
-        }
-    }
-
-    /// Check if a `TestCase` failed
-    pub fn is_failure(&self) -> bool {
-        match self.result {
-            TestResult::Failure { .. } => true,
-            _ => false,
-        }
-    }
-}
-
-// Make sure the readme is tested too
-#[cfg(doctest)]
-doc_comment::doctest!("../README.md");
+pub use crate::collections::{TestCase, TestSuite};
+pub use crate::reports::Report;
 
 #[cfg(test)]
 mod tests {
@@ -361,7 +80,9 @@ mod tests {
 
     #[test]
     fn add_empty_testsuite_single() {
-        use crate::{Report, TestSuite, TimeZone, Utc};
+        use crate::Report;
+        use crate::TestSuite;
+        use crate::{TimeZone, Utc};
 
         let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
 
@@ -386,7 +107,9 @@ mod tests {
 
     #[test]
     fn add_empty_testsuite_batch() {
-        use crate::{Report, TestSuite, TimeZone, Utc};
+        use crate::Report;
+        use crate::TestSuite;
+        use crate::{TimeZone, Utc};
 
         let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
 
@@ -412,7 +135,8 @@ mod tests {
 
     #[test]
     fn count_tests() {
-        use crate::{Duration, TestCase, TestSuite};
+        use crate::Duration;
+        use crate::{TestCase, TestSuite};
 
         let mut ts = TestSuite::new("ts");
 
