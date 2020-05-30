@@ -114,6 +114,66 @@ mod tests {
     }
 
     #[test]
+    fn add_empty_testsuite_single_with_sysout() {
+        use crate::Report;
+        use crate::TestSuite;
+        use crate::{TimeZone, Utc};
+
+        let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
+
+        let mut r = Report::new();
+        let mut ts1 = TestSuite::new("ts1");
+        ts1.set_sysout("Test sysout".to_string());
+        ts1.set_timestamp(timestamp);
+
+        r.add_testsuite(ts1);
+
+        let mut out: Vec<u8> = Vec::new();
+
+        r.write_xml(&mut out).unwrap();
+
+        assert_eq!(
+            normalize(out),
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<testsuites>
+  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">
+    <system-out>Test sysout</system-out>
+  </testsuite>
+</testsuites>"
+        );
+    }
+
+    #[test]
+    fn add_empty_testsuite_single_with_syserror() {
+        use crate::Report;
+        use crate::TestSuite;
+        use crate::{TimeZone, Utc};
+
+        let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
+
+        let mut r = Report::new();
+        let mut ts1 = TestSuite::new("ts1");
+        ts1.set_syserror("Test syserror".to_string());
+        ts1.set_timestamp(timestamp);
+
+        r.add_testsuite(ts1);
+
+        let mut out: Vec<u8> = Vec::new();
+
+        r.write_xml(&mut out).unwrap();
+
+        assert_eq!(
+            normalize(out),
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<testsuites>
+  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">
+    <system-err>Test syserror</system-err>
+  </testsuite>
+</testsuites>"
+        );
+    }
+
+    #[test]
     fn add_empty_testsuite_batch() {
         use crate::Report;
         use crate::TestSuite;

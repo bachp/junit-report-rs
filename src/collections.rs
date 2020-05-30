@@ -24,7 +24,7 @@ impl TestSuite {
             timestamp: Utc::now(),
             testcases: Vec::new(),
             sysout: None,
-            syserror: None
+            syserror: None,
         }
     }
 
