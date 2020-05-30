@@ -19,13 +19,20 @@ fn reference_report() {
     let mut ts1 = TestSuite::new("ts1");
     ts1.set_timestamp(timestamp);
 
-    let test_success =
-        TestCase::success("test1", Duration::seconds(15), Some("MyClass".to_string()));
+    let test_success = TestCase::success(
+        "test1",
+        Duration::seconds(15),
+        Some("MyClass".to_string()),
+        None,
+        None,
+    );
     let test_error = TestCase::error(
         "test3",
         Duration::seconds(5),
         "git error",
         "Could not clone",
+        None,
+        None,
         None,
     );
     let test_failure = TestCase::failure(
@@ -33,6 +40,8 @@ fn reference_report() {
         Duration::seconds(10),
         "assert_eq",
         "What was not true",
+        None,
+        None,
         None,
     );
 
@@ -90,6 +99,8 @@ fn validate_generated_xml_schema() {
         "MyTest3",
         Duration::seconds(15),
         Some("MyClass".to_string()),
+        None,
+        None,
     );
     let test_error = TestCase::error(
         "Blabla",
@@ -97,9 +108,18 @@ fn validate_generated_xml_schema() {
         "git error",
         "Could not clone",
         None,
+        None,
+        None,
     );
-    let test_failure =
-        TestCase::failure("Burk", Duration::seconds(10), "asdfasf", "asdfajfhk", None);
+    let test_failure = TestCase::failure(
+        "Burk",
+        Duration::seconds(10),
+        "asdfasf",
+        "asdfajfhk",
+        None,
+        None,
+        None,
+    );
 
     ts1.add_testcase(test_success);
     ts1.add_testcase(test_failure);

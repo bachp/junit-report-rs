@@ -21,12 +21,13 @@
 ///     let mut ts2 = TestSuite::new("ts2");
 ///     ts2.set_timestamp(timestamp);
 ///
-///     let test_success = TestCase::success("good test", Duration::seconds(15), None);
+///     let test_success = TestCase::success("good test", Duration::seconds(15), None, None,);
 ///     let test_error = TestCase::error(
 ///         "error test",
 ///         Duration::seconds(5),
 ///         "git error",
 ///         "unable to fetch",
+///         None,
 ///         None,
 ///     );
 ///     let test_failure = TestCase::failure(
@@ -35,6 +36,7 @@
 ///         "assert_eq",
 ///         "not equal",
 ///         Some("classname".to_string()),
+///         None,
 ///     );
 ///
 ///     ts2.add_testcase(test_success);
@@ -101,7 +103,11 @@ mod tests {
 
         assert_eq!(
             normalize(out),
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<testsuites>\n  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">\n    <system-out />\n    <system-err />\n  </testsuite>\n  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">\n    <system-out />\n    <system-err />\n  </testsuite>\n</testsuites>"
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<testsuites>
+  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\" />
+  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\" />
+</testsuites>"
         );
     }
 
@@ -129,7 +135,11 @@ mod tests {
 
         assert_eq!(
             normalize(out),
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<testsuites>\n  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">\n    <system-out />\n    <system-err />\n  </testsuite>\n  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">\n    <system-out />\n    <system-err />\n  </testsuite>\n</testsuites>"
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<testsuites>
+  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\" />
+  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\" />
+</testsuites>"
         );
     }
 
@@ -140,12 +150,14 @@ mod tests {
 
         let mut ts = TestSuite::new("ts");
 
-        let tc1 = TestCase::success("mysuccess", Duration::milliseconds(6001), None);
+        let tc1 = TestCase::success("mysuccess", Duration::milliseconds(6001), None, None, None);
         let tc2 = TestCase::error(
             "myerror",
             Duration::seconds(6),
             "Some Error",
             "An Error happened",
+            None,
+            None,
             None,
         );
         let tc3 = TestCase::failure(
@@ -153,6 +165,8 @@ mod tests {
             Duration::seconds(6),
             "Some failure",
             "A Failure happened",
+            None,
+            None,
             None,
         );
 
@@ -195,6 +209,8 @@ mod tests {
             "good test",
             Duration::milliseconds(15001),
             Some("MyClass".to_string()),
+            None,
+            None,
         );
         let test_error = TestCase::error(
             "error test",
@@ -202,12 +218,16 @@ mod tests {
             "git error",
             "unable to fetch",
             None,
+            None,
+            None,
         );
         let test_failure = TestCase::failure(
             "failure test",
             Duration::seconds(10),
             "assert_eq",
             "not equal",
+            None,
+            None,
             None,
         );
 
@@ -224,7 +244,19 @@ mod tests {
 
         assert_eq!(
             normalize(out),
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<testsuites>\n  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">\n    <system-out />\n    <system-err />\n  </testsuite>\n  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"3\" errors=\"1\" failures=\"1\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"30.001\">\n    <testcase name=\"good test\" classname=\"MyClass\" time=\"15.001\" />\n    <testcase name=\"error test\" time=\"5\">\n      <error type=\"git error\" message=\"unable to fetch\" />\n    </testcase>\n    <testcase name=\"failure test\" time=\"10\">\n      <failure type=\"assert_eq\" message=\"not equal\" />\n    </testcase>\n    <system-out />\n    <system-err />\n  </testsuite>\n</testsuites>"
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<testsuites>
+  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\" />
+  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"3\" errors=\"1\" failures=\"1\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"30.001\">
+    <testcase name=\"good test\" classname=\"MyClass\" time=\"15.001\" />
+    <testcase name=\"error test\" time=\"5\">
+      <error type=\"git error\" message=\"unable to fetch\" />
+    </testcase>
+    <testcase name=\"failure test\" time=\"10\">
+      <failure type=\"assert_eq\" message=\"not equal\" />
+    </testcase>
+  </testsuite>
+</testsuites>"
         );
     }
 }

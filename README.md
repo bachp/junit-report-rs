@@ -20,12 +20,14 @@ Generate JUnit compatible XML reports in Rust.
     let mut ts2 = TestSuite::new("ts2");
     ts2.set_timestamp(timestamp);
 
-    let test_success = TestCase::success("good test", Duration::seconds(15), Some("MyClass".to_string()));
+    let test_success = TestCase::success("good test", Duration::seconds(15), Some("MyClass".to_string()), None);
     let test_error = TestCase::error(
         "error test",
         Duration::seconds(5),
         "git error",
         "unable to fetch",
+        None,
+        None,
         None,
     );
     let test_failure = TestCase::failure(
@@ -33,6 +35,8 @@ Generate JUnit compatible XML reports in Rust.
         Duration::seconds(10),
         "assert_eq",
         "not equal",
+        None,
+        None,
         None,
     );
 

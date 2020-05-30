@@ -67,6 +67,8 @@ pub struct TestCase {
     pub time: Duration,
     pub result: TestResult,
     pub classname: Option<String>,
+    pub sysout: Option<String>,
+    pub syserror: Option<String>,
 }
 
 /// Result of a test case
@@ -79,12 +81,20 @@ pub enum TestResult {
 
 impl TestCase {
     /// Creates a new successful `TestCase`
-    pub fn success(name: &str, time: Duration, classname: Option<String>) -> TestCase {
+    pub fn success(
+        name: &str,
+        time: Duration,
+        classname: Option<String>,
+        sysout: Option<String>,
+        syserror: Option<String>,
+    ) -> TestCase {
         TestCase {
             name: name.into(),
             time,
             result: TestResult::Success,
             classname,
+            sysout,
+            syserror,
         }
     }
 
@@ -105,6 +115,8 @@ impl TestCase {
         type_: &str,
         message: &str,
         classname: Option<String>,
+        sysout: Option<String>,
+        syserror: Option<String>,
     ) -> TestCase {
         TestCase {
             name: name.into(),
@@ -114,6 +126,8 @@ impl TestCase {
                 message: message.into(),
             },
             classname,
+            sysout,
+            syserror,
         }
     }
 
@@ -134,6 +148,8 @@ impl TestCase {
         type_: &str,
         message: &str,
         classname: Option<String>,
+        sysout: Option<String>,
+        syserror: Option<String>,
     ) -> TestCase {
         TestCase {
             name: name.into(),
@@ -143,6 +159,8 @@ impl TestCase {
                 message: message.into(),
             },
             classname,
+            sysout,
+            syserror,
         }
     }
 
