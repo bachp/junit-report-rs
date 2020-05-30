@@ -10,6 +10,8 @@ pub struct TestSuite {
     pub timestamp: DateTime<Utc>,
     pub hostname: String,
     pub testcases: Vec<TestCase>,
+    pub sysout: Option<String>,
+    pub syserror: Option<String>,
 }
 
 impl TestSuite {
@@ -21,6 +23,8 @@ impl TestSuite {
             name: name.into(),
             timestamp: Utc::now(),
             testcases: Vec::new(),
+            sysout: None,
+            syserror: None
         }
     }
 
@@ -39,6 +43,14 @@ impl TestSuite {
     /// By default the timestamp is set to the time when the `TestSuite` was created.
     pub fn set_timestamp(&mut self, timestamp: DateTime<Utc>) {
         self.timestamp = timestamp;
+    }
+
+    pub fn set_sysout(&mut self, sysout: String) {
+        self.sysout = Option::from(sysout);
+    }
+
+    pub fn set_syserror(&mut self, syserror: String) {
+        self.syserror = Option::from(syserror);
     }
 
     pub fn tests(&self) -> usize {

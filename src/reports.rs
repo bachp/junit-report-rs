@@ -124,6 +124,17 @@ impl Report {
 
                 ew.write(XmlEvent::end_element())?;
             }
+            if let Some(sysout) = &ts.sysout {
+                ew.write(XmlEvent::start_element("system-out"))?;
+                ew.write(sysout.as_str())?;
+                ew.write(XmlEvent::end_element())?;
+            }
+
+            if let Some(syserror) = &ts.syserror {
+                ew.write(XmlEvent::start_element("system-err"))?;
+                ew.write(syserror.as_str())?;
+                ew.write(XmlEvent::end_element())?;
+            }
 
             ew.write(XmlEvent::end_element())?;
         }
