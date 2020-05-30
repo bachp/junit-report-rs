@@ -21,7 +21,7 @@
 ///     let mut ts2 = TestSuite::new("ts2");
 ///     ts2.set_timestamp(timestamp);
 ///
-///     let test_success = TestCase::success("good test", Duration::seconds(15), None, None,);
+///     let test_success = TestCase::success("good test", Duration::seconds(15), None, None, None,);
 ///     let test_error = TestCase::error(
 ///         "error test",
 ///         Duration::seconds(5),
@@ -29,6 +29,7 @@
 ///         "unable to fetch",
 ///         None,
 ///         None,
+///         None
 ///     );
 ///     let test_failure = TestCase::failure(
 ///         "failure test",
@@ -36,6 +37,7 @@
 ///         "assert_eq",
 ///         "not equal",
 ///         Some("classname".to_string()),
+///         None,
 ///         None,
 ///     );
 ///
