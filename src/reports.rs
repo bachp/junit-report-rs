@@ -86,17 +86,13 @@ impl Report {
 
                 if let Some(sysout) = &tc.sysout {
                     ew.write(XmlEvent::start_element("system-out"))?;
-                    ew.write("<![CDATA[");
-                    ew.write(sysout.as_str())?;
-                    ew.write("]]>");
+                    ew.write(XmlEvent::CData(sysout.as_str()))?;
                     ew.write(XmlEvent::end_element())?;
                 }
 
                 if let Some(syserror) = &tc.syserror {
                     ew.write(XmlEvent::start_element("system-err"))?;
-                    ew.write("<![CDATA[");
-                    ew.write(syserror.as_str())?;
-                    ew.write("]]>");
+                    ew.write(XmlEvent::CData(syserror.as_str()))?;
                     ew.write(XmlEvent::end_element())?;
                 }
 
@@ -130,17 +126,13 @@ impl Report {
             }
             if let Some(sysout) = &ts.sysout {
                 ew.write(XmlEvent::start_element("system-out"))?;
-                ew.write("<![CDATA[");
-                ew.write(sysout.as_str())?;
-                ew.write("]]>");
+                ew.write(XmlEvent::CData(sysout.as_str()))?;
                 ew.write(XmlEvent::end_element())?;
             }
 
             if let Some(syserror) = &ts.syserror {
                 ew.write(XmlEvent::start_element("system-err"))?;
-                ew.write("<![CDATA[");
-                ew.write(syserror.as_str())?;
-                ew.write("]]>");
+                ew.write(XmlEvent::CData(syserror.as_str()))?;
                 ew.write(XmlEvent::end_element())?;
             }
 

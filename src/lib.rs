@@ -137,7 +137,7 @@ mod tests {
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <testsuites>
   <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">
-    <system-out>Test sysout</system-out>
+    <system-out><![CDATA[Test sysout]]></system-out>
   </testsuite>
 </testsuites>"
         );
@@ -167,7 +167,7 @@ mod tests {
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <testsuites>
   <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">
-    <system-err>Test syserror</system-err>
+    <system-err><![CDATA[Test syserror]]></system-err>
   </testsuite>
 </testsuites>"
         );
@@ -378,15 +378,15 @@ mod tests {
   <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\" />
   <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"3\" errors=\"1\" failures=\"1\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"30.001\">
     <testcase name=\"good test\" classname=\"MyClass\" time=\"15.001\">
-      <system-out>Some sysout message</system-out>
+      <system-out><![CDATA[Some sysout message]]></system-out>
     </testcase>
     <testcase name=\"error test\" time=\"5\">
-      <system-err>Some syserror message</system-err>
+      <system-err><![CDATA[Some syserror message]]></system-err>
       <error type=\"git error\" message=\"unable to fetch\" />
     </testcase>
     <testcase name=\"failure test\" time=\"10\">
-      <system-out>Sysout and syserror mixed in</system-out>
-      <system-err>Another syserror message</system-err>
+      <system-out><![CDATA[Sysout and syserror mixed in]]></system-out>
+      <system-err><![CDATA[Another syserror message]]></system-err>
       <failure type=\"assert_eq\" message=\"not equal\" />
     </testcase>
   </testsuite>
