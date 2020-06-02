@@ -33,13 +33,15 @@ impl Report {
     /// Add a [`TestSuite`](../struct.TestSuite.html) to this report.
     ///
     /// The function takes ownership of the supplied [`TestSuite`](../struct.TestSuite.html).
-    pub fn add_testsuite(&mut self, testsuite: TestSuite) {
+    pub fn add_testsuite(mut self, testsuite: TestSuite) -> Self {
         self.testsuites.push(testsuite);
+        self
     }
 
     /// Add multiple[`TestSuite`s](../struct.TestSuite.html) from an iterator.
-    pub fn add_testsuites(&mut self, testsuites: impl IntoIterator<Item = TestSuite>) {
+    pub fn add_testsuites(mut self, testsuites: impl IntoIterator<Item = TestSuite>) -> Self {
         self.testsuites.extend(testsuites);
+        self
     }
 
     //TODO: Use custom error to not expose xml-rs, maybe via failure
@@ -84,15 +86,15 @@ impl Report {
                     )?;
                 }
 
-                if let Some(sysout) = &tc.sysout {
+                if let Some(system_out) = &tc.system_out {
                     ew.write(XmlEvent::start_element("system-out"))?;
-                    ew.write(XmlEvent::CData(sysout.as_str()))?;
+                    ew.write(XmlEvent::CData(system_out.as_str()))?;
                     ew.write(XmlEvent::end_element())?;
                 }
 
-                if let Some(syserror) = &tc.syserror {
+                if let Some(system_err) = &tc.system_err {
                     ew.write(XmlEvent::start_element("system-err"))?;
-                    ew.write(XmlEvent::CData(syserror.as_str()))?;
+                    ew.write(XmlEvent::CData(system_err.as_str()))?;
                     ew.write(XmlEvent::end_element())?;
                 }
 
@@ -124,15 +126,15 @@ impl Report {
 
                 ew.write(XmlEvent::end_element())?;
             }
-            if let Some(sysout) = &ts.sysout {
+            if let Some(system_out) = &ts.system_out {
                 ew.write(XmlEvent::start_element("system-out"))?;
-                ew.write(XmlEvent::CData(sysout.as_str()))?;
+                ew.write(XmlEvent::CData(system_out.as_str()))?;
                 ew.write(XmlEvent::end_element())?;
             }
 
-            if let Some(syserror) = &ts.syserror {
+            if let Some(system_err) = &ts.system_err {
                 ew.write(XmlEvent::start_element("system-err"))?;
-                ew.write(XmlEvent::CData(syserror.as_str()))?;
+                ew.write(XmlEvent::CData(system_err.as_str()))?;
                 ew.write(XmlEvent::end_element())?;
             }
 

@@ -15,41 +15,27 @@ fn reference_report() {
 
     let timestamp = Utc.ymd(2018, 4, 21).and_hms(12, 02, 0);
 
-    let mut r = Report::new();
-    let mut ts1 = TestSuite::new("ts1");
-    ts1.set_timestamp(timestamp);
-
-    let test_success = TestCase::success(
-        "test1",
-        Duration::seconds(15),
-        Some("MyClass".to_string()),
-        None,
-        None,
-    );
+    let test_success = TestCase::success("test1", Duration::seconds(15)).set_classname("MyClass");
     let test_error = TestCase::error(
         "test3",
         Duration::seconds(5),
         "git error",
         "Could not clone",
-        None,
-        None,
-        None,
     );
     let test_failure = TestCase::failure(
         "test2",
         Duration::seconds(10),
         "assert_eq",
         "What was not true",
-        None,
-        None,
-        None,
     );
 
-    ts1.add_testcase(test_success);
-    ts1.add_testcase(test_failure);
-    ts1.add_testcase(test_error);
+    let ts1 = TestSuite::new("ts1")
+        .set_timestamp(timestamp)
+        .add_testcase(test_success)
+        .add_testcase(test_failure)
+        .add_testcase(test_error);
 
-    r.add_testsuite(ts1);
+    let r = Report::new().add_testsuite(ts1);
 
     let mut out: Vec<u8> = Vec::new();
 
@@ -91,41 +77,22 @@ fn validate_generated_xml_schema() {
 
     let timestamp = Utc.ymd(2018, 4, 21).and_hms(12, 02, 0);
 
-    let mut r = Report::new();
-    let mut ts1 = TestSuite::new("Some Testsuite");
-    ts1.set_timestamp(timestamp);
-
-    let test_success = TestCase::success(
-        "MyTest3",
-        Duration::seconds(15),
-        Some("MyClass".to_string()),
-        None,
-        None,
-    );
+    let test_success = TestCase::success("MyTest3", Duration::seconds(15)).set_classname("MyClass");
     let test_error = TestCase::error(
         "Blabla",
         Duration::seconds(5),
         "git error",
         "Could not clone",
-        None,
-        None,
-        None,
     );
-    let test_failure = TestCase::failure(
-        "Burk",
-        Duration::seconds(10),
-        "asdfasf",
-        "asdfajfhk",
-        None,
-        None,
-        None,
-    );
+    let test_failure = TestCase::failure("Burk", Duration::seconds(10), "asdfasf", "asdfajfhk");
 
-    ts1.add_testcase(test_success);
-    ts1.add_testcase(test_failure);
-    ts1.add_testcase(test_error);
+    let ts1 = TestSuite::new("Some Testsuite")
+        .set_timestamp(timestamp)
+        .add_testcase(test_success)
+        .add_testcase(test_failure)
+        .add_testcase(test_error);
 
-    r.add_testsuite(ts1);
+    let r = Report::new().add_testsuite(ts1);
 
     let mut f = File::create("target/generated.xml").unwrap();
 

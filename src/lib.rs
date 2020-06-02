@@ -15,38 +15,30 @@
 ///
 ///     let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
 ///
-///     let mut r = Report::new();
-///     let mut ts1 = TestSuite::new("ts1");
-///     ts1.set_timestamp(timestamp);
-///     let mut ts2 = TestSuite::new("ts2");
-///     ts2.set_timestamp(timestamp);
-///
-///     let test_success = TestCase::success("good test", Duration::seconds(15), None, None, None,);
+///     let test_success = TestCase::success("good test", Duration::seconds(15));
 ///     let test_error = TestCase::error(
 ///         "error test",
 ///         Duration::seconds(5),
 ///         "git error",
 ///         "unable to fetch",
-///         None,
-///         None,
-///         None
 ///     );
 ///     let test_failure = TestCase::failure(
 ///         "failure test",
 ///         Duration::seconds(10),
 ///         "assert_eq",
 ///         "not equal",
-///         Some("classname".to_string()),
-///         None,
-///         None,
-///     );
+///     ).set_classname("classname");
 ///
-///     ts2.add_testcase(test_success);
-///     ts2.add_testcase(test_error);
-///     ts2.add_testcase(test_failure);
+///     let ts1 = TestSuite::new("ts1").set_timestamp(timestamp);
 ///
-///     r.add_testsuite(ts1);
-///     r.add_testsuite(ts2);
+///     let ts2 = TestSuite::new("ts2").set_timestamp(timestamp)
+///       .add_testcase(test_success)
+///       .add_testcase(test_error)
+///       .add_testcase(test_failure);
+///
+///     let r = Report::new()
+///       .add_testsuite(ts1)
+///       .add_testsuite(ts2);
 ///
 ///     let mut out: Vec<u8> = Vec::new();
 ///
@@ -90,14 +82,10 @@ mod tests {
 
         let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
 
-        let mut r = Report::new();
-        let mut ts1 = TestSuite::new("ts1");
-        ts1.set_timestamp(timestamp);
-        let mut ts2 = TestSuite::new("ts2");
-        ts2.set_timestamp(timestamp);
+        let ts1 = TestSuite::new("ts1").set_timestamp(timestamp);
+        let ts2 = TestSuite::new("ts2").set_timestamp(timestamp);
 
-        r.add_testsuite(ts1);
-        r.add_testsuite(ts2);
+        let r = Report::new().add_testsuite(ts1).add_testsuite(ts2);
 
         let mut out: Vec<u8> = Vec::new();
 
@@ -121,12 +109,11 @@ mod tests {
 
         let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
 
-        let mut r = Report::new();
-        let mut ts1 = TestSuite::new("ts1");
-        ts1.set_sysout("Test sysout".to_string());
-        ts1.set_timestamp(timestamp);
+        let ts1 = TestSuite::new("ts1")
+            .set_system_out("Test sysout")
+            .set_timestamp(timestamp);
 
-        r.add_testsuite(ts1);
+        let r = Report::new().add_testsuite(ts1);
 
         let mut out: Vec<u8> = Vec::new();
 
@@ -151,12 +138,11 @@ mod tests {
 
         let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
 
-        let mut r = Report::new();
-        let mut ts1 = TestSuite::new("ts1");
-        ts1.set_syserror("Test syserror".to_string());
-        ts1.set_timestamp(timestamp);
+        let ts1 = TestSuite::new("ts1")
+            .set_system_err("Test syserror")
+            .set_timestamp(timestamp);
 
-        r.add_testsuite(ts1);
+        let r = Report::new().add_testsuite(ts1);
 
         let mut out: Vec<u8> = Vec::new();
 
@@ -181,15 +167,12 @@ mod tests {
 
         let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
 
-        let mut r = Report::new();
-        let mut ts1 = TestSuite::new("ts1");
-        ts1.set_timestamp(timestamp);
-        let mut ts2 = TestSuite::new("ts2");
-        ts2.set_timestamp(timestamp);
+        let ts1 = TestSuite::new("ts1").set_timestamp(timestamp);
+        let ts2 = TestSuite::new("ts2").set_timestamp(timestamp);
 
         let v = vec![ts1, ts2];
 
-        r.add_testsuites(v);
+        let r = Report::new().add_testsuites(v);
 
         let mut out: Vec<u8> = Vec::new();
 
@@ -210,45 +193,39 @@ mod tests {
         use crate::Duration;
         use crate::{TestCase, TestSuite};
 
-        let mut ts = TestSuite::new("ts");
+        let ts = TestSuite::new("ts");
 
-        let tc1 = TestCase::success("mysuccess", Duration::milliseconds(6001), None, None, None);
+        let tc1 = TestCase::success("mysuccess", Duration::milliseconds(6001));
         let tc2 = TestCase::error(
             "myerror",
             Duration::seconds(6),
             "Some Error",
             "An Error happened",
-            None,
-            None,
-            None,
         );
         let tc3 = TestCase::failure(
             "myerror",
             Duration::seconds(6),
             "Some failure",
             "A Failure happened",
-            None,
-            None,
-            None,
         );
 
         assert_eq!(0, ts.tests());
         assert_eq!(0, ts.errors());
         assert_eq!(0, ts.failures());
 
-        ts.add_testcase(tc1);
+        let ts = ts.add_testcase(tc1);
 
         assert_eq!(1, ts.tests());
         assert_eq!(0, ts.errors());
         assert_eq!(0, ts.failures());
 
-        ts.add_testcase(tc2);
+        let ts = ts.add_testcase(tc2);
 
         assert_eq!(2, ts.tests());
         assert_eq!(1, ts.errors());
         assert_eq!(0, ts.failures());
 
-        ts.add_testcase(tc3);
+        let ts = ts.add_testcase(tc3);
 
         assert_eq!(3, ts.tests());
         assert_eq!(1, ts.errors());
@@ -261,44 +238,29 @@ mod tests {
 
         let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
 
-        let mut r = Report::new();
-        let mut ts1 = TestSuite::new("ts1");
-        ts1.set_timestamp(timestamp);
-        let mut ts2 = TestSuite::new("ts2");
-        ts2.set_timestamp(timestamp);
-
-        let test_success = TestCase::success(
-            "good test",
-            Duration::milliseconds(15001),
-            Some("MyClass".to_string()),
-            None,
-            None,
-        );
+        let test_success =
+            TestCase::success("good test", Duration::milliseconds(15001)).set_classname("MyClass");
         let test_error = TestCase::error(
             "error test",
             Duration::seconds(5),
             "git error",
             "unable to fetch",
-            None,
-            None,
-            None,
         );
         let test_failure = TestCase::failure(
             "failure test",
             Duration::seconds(10),
             "assert_eq",
             "not equal",
-            None,
-            None,
-            None,
         );
 
-        ts2.add_testcase(test_success);
-        ts2.add_testcase(test_error);
-        ts2.add_testcase(test_failure);
+        let ts1 = TestSuite::new("ts1").set_timestamp(timestamp);
+        let ts2 = TestSuite::new("ts2")
+            .set_timestamp(timestamp)
+            .add_testcase(test_success)
+            .add_testcase(test_error)
+            .add_testcase(test_failure);
 
-        r.add_testsuite(ts1);
-        r.add_testsuite(ts2);
+        let r = Report::new().add_testsuite(ts1).add_testsuite(ts2);
 
         let mut out: Vec<u8> = Vec::new();
 
@@ -328,44 +290,33 @@ mod tests {
 
         let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
 
-        let mut r = Report::new();
-        let mut ts1 = TestSuite::new("ts1");
-        ts1.set_timestamp(timestamp);
-        let mut ts2 = TestSuite::new("ts2");
-        ts2.set_timestamp(timestamp);
-
-        let test_success = TestCase::success(
-            "good test",
-            Duration::milliseconds(15001),
-            Some("MyClass".to_string()),
-            Some("Some sysout message".to_string()),
-            None,
-        );
+        let test_success = TestCase::success("good test", Duration::milliseconds(15001))
+            .set_classname("MyClass")
+            .set_system_out("Some sysout message");
         let test_error = TestCase::error(
             "error test",
             Duration::seconds(5),
             "git error",
             "unable to fetch",
-            None,
-            None,
-            Some("Some syserror message".to_string()),
-        );
+        )
+        .set_system_err("Some syserror message");
         let test_failure = TestCase::failure(
             "failure test",
             Duration::seconds(10),
             "assert_eq",
             "not equal",
-            None,
-            Some("Sysout and syserror mixed in".to_string()),
-            Some("Another syserror message".to_string()),
-        );
+        )
+        .set_system_out("Sysout and syserror mixed in")
+        .set_system_err("Another syserror message");
 
-        ts2.add_testcase(test_success);
-        ts2.add_testcase(test_error);
-        ts2.add_testcase(test_failure);
+        let ts1 = TestSuite::new("ts1").set_timestamp(timestamp);
+        let ts2 = TestSuite::new("ts2")
+            .set_timestamp(timestamp)
+            .add_testcase(test_success)
+            .add_testcase(test_error)
+            .add_testcase(test_failure);
 
-        r.add_testsuite(ts1);
-        r.add_testsuite(ts2);
+        let r = Report::new().add_testsuite(ts1).add_testsuite(ts2);
 
         let mut out: Vec<u8> = Vec::new();
 
