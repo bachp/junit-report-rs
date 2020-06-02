@@ -84,6 +84,18 @@ impl Report {
                     )?;
                 }
 
+                if let Some(sysout) = &tc.sysout {
+                    ew.write(XmlEvent::start_element("system-out"))?;
+                    ew.write(XmlEvent::CData(sysout.as_str()))?;
+                    ew.write(XmlEvent::end_element())?;
+                }
+
+                if let Some(syserror) = &tc.syserror {
+                    ew.write(XmlEvent::start_element("system-err"))?;
+                    ew.write(XmlEvent::CData(syserror.as_str()))?;
+                    ew.write(XmlEvent::end_element())?;
+                }
+
                 match tc.result {
                     TestResult::Success => {}
                     TestResult::Error {
@@ -112,14 +124,17 @@ impl Report {
 
                 ew.write(XmlEvent::end_element())?;
             }
+            if let Some(sysout) = &ts.sysout {
+                ew.write(XmlEvent::start_element("system-out"))?;
+                ew.write(XmlEvent::CData(sysout.as_str()))?;
+                ew.write(XmlEvent::end_element())?;
+            }
 
-            //TODO: support system-out
-            ew.write(XmlEvent::start_element("system-out"))?;
-            ew.write(XmlEvent::end_element())?;
-
-            //TODO: support system-err
-            ew.write(XmlEvent::start_element("system-err"))?;
-            ew.write(XmlEvent::end_element())?;
+            if let Some(syserror) = &ts.syserror {
+                ew.write(XmlEvent::start_element("system-err"))?;
+                ew.write(XmlEvent::CData(syserror.as_str()))?;
+                ew.write(XmlEvent::end_element())?;
+            }
 
             ew.write(XmlEvent::end_element())?;
         }

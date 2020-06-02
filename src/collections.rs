@@ -10,6 +10,8 @@ pub struct TestSuite {
     pub timestamp: DateTime<Utc>,
     pub hostname: String,
     pub testcases: Vec<TestCase>,
+    pub sysout: Option<String>,
+    pub syserror: Option<String>,
 }
 
 impl TestSuite {
@@ -21,6 +23,8 @@ impl TestSuite {
             name: name.into(),
             timestamp: Utc::now(),
             testcases: Vec::new(),
+            sysout: None,
+            syserror: None,
         }
     }
 
@@ -39,6 +43,14 @@ impl TestSuite {
     /// By default the timestamp is set to the time when the `TestSuite` was created.
     pub fn set_timestamp(&mut self, timestamp: DateTime<Utc>) {
         self.timestamp = timestamp;
+    }
+
+    pub fn set_sysout(&mut self, sysout: String) {
+        self.sysout = Option::from(sysout);
+    }
+
+    pub fn set_syserror(&mut self, syserror: String) {
+        self.syserror = Option::from(syserror);
     }
 
     pub fn tests(&self) -> usize {
@@ -67,6 +79,8 @@ pub struct TestCase {
     pub time: Duration,
     pub result: TestResult,
     pub classname: Option<String>,
+    pub sysout: Option<String>,
+    pub syserror: Option<String>,
 }
 
 /// Result of a test case
@@ -79,12 +93,20 @@ pub enum TestResult {
 
 impl TestCase {
     /// Creates a new successful `TestCase`
-    pub fn success(name: &str, time: Duration, classname: Option<String>) -> TestCase {
+    pub fn success(
+        name: &str,
+        time: Duration,
+        classname: Option<String>,
+        sysout: Option<String>,
+        syserror: Option<String>,
+    ) -> TestCase {
         TestCase {
             name: name.into(),
             time,
             result: TestResult::Success,
             classname,
+            sysout,
+            syserror,
         }
     }
 
@@ -105,6 +127,8 @@ impl TestCase {
         type_: &str,
         message: &str,
         classname: Option<String>,
+        sysout: Option<String>,
+        syserror: Option<String>,
     ) -> TestCase {
         TestCase {
             name: name.into(),
@@ -114,6 +138,8 @@ impl TestCase {
                 message: message.into(),
             },
             classname,
+            sysout,
+            syserror,
         }
     }
 
@@ -134,6 +160,8 @@ impl TestCase {
         type_: &str,
         message: &str,
         classname: Option<String>,
+        sysout: Option<String>,
+        syserror: Option<String>,
     ) -> TestCase {
         TestCase {
             name: name.into(),
@@ -143,6 +171,8 @@ impl TestCase {
                 message: message.into(),
             },
             classname,
+            sysout,
+            syserror,
         }
     }
 
