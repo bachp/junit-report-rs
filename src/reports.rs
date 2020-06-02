@@ -2,9 +2,18 @@ use std::io::Write;
 
 use crate::collections::{TestResult, TestSuite};
 use derive_getters::Getters;
-use xml::writer::{self, EmitterConfig, XmlEvent};
+use xml::writer::{EmitterConfig, XmlEvent};
 
 pub use chrono::{DateTime, Duration, TimeZone, Utc};
+
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+/// Errors that can occur when creating a `Report`
+pub enum ReportError {
+    #[error("unable to write report")]
+    Write(#[from] xml::writer::Error),
+}
 
 fn decimal_seconds(d: &Duration) -> f64 {
     if let Some(n) = d.num_nanoseconds() {
@@ -44,9 +53,8 @@ impl Report {
         self
     }
 
-    //TODO: Use custom error to not expose xml-rs, maybe via failure
     /// Write the XML version of the Report to the given `Writer`.
-    pub fn write_xml<W: Write>(&self, sink: W) -> writer::Result<()> {
+    pub fn write_xml<W: Write>(&self, sink: W) -> Result<(), ReportError> {
         let mut ew = EmitterConfig::new()
             .perform_indent(true)
             .create_writer(sink);
