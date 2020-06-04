@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## Added
+- `system_out` and `system_err` fields added
+
+## BREAKING CHANGES
+- Revamp the API to use the builder pattern. This makes the API more future proof and hopefully avoids breaking changes in the future when more optional fields are added.
+- Change error type to no longer expose the internals of the XML processsing.
+
 ## [0.3.0] - 2020-05-12
 
 ### Added

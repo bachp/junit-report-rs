@@ -2,9 +2,18 @@ use std::io::Write;
 
 use crate::collections::{TestResult, TestSuite};
 use derive_getters::Getters;
-use xml::writer::{self, EmitterConfig, XmlEvent};
+use xml::writer::{EmitterConfig, XmlEvent};
 
 pub use chrono::{DateTime, Duration, TimeZone, Utc};
+
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+/// Errors that can occur when creating a `Report`
+pub enum ReportError {
+    #[error("unable to write report")]
+    Write(#[from] xml::writer::Error),
+}
 
 fn decimal_seconds(d: &Duration) -> f64 {
     if let Some(n) = d.num_nanoseconds() {
@@ -33,18 +42,19 @@ impl Report {
     /// Add a [`TestSuite`](../struct.TestSuite.html) to this report.
     ///
     /// The function takes ownership of the supplied [`TestSuite`](../struct.TestSuite.html).
-    pub fn add_testsuite(&mut self, testsuite: TestSuite) {
+    pub fn add_testsuite(mut self, testsuite: TestSuite) -> Self {
         self.testsuites.push(testsuite);
+        self
     }
 
     /// Add multiple[`TestSuite`s](../struct.TestSuite.html) from an iterator.
-    pub fn add_testsuites(&mut self, testsuites: impl IntoIterator<Item = TestSuite>) {
+    pub fn add_testsuites(mut self, testsuites: impl IntoIterator<Item = TestSuite>) -> Self {
         self.testsuites.extend(testsuites);
+        self
     }
 
-    //TODO: Use custom error to not expose xml-rs, maybe via failure
     /// Write the XML version of the Report to the given `Writer`.
-    pub fn write_xml<W: Write>(&self, sink: W) -> writer::Result<()> {
+    pub fn write_xml<W: Write>(&self, sink: W) -> Result<(), ReportError> {
         let mut ew = EmitterConfig::new()
             .perform_indent(true)
             .create_writer(sink);
@@ -84,15 +94,15 @@ impl Report {
                     )?;
                 }
 
-                if let Some(sysout) = &tc.sysout {
+                if let Some(system_out) = &tc.system_out {
                     ew.write(XmlEvent::start_element("system-out"))?;
-                    ew.write(XmlEvent::CData(sysout.as_str()))?;
+                    ew.write(XmlEvent::CData(system_out.as_str()))?;
                     ew.write(XmlEvent::end_element())?;
                 }
 
-                if let Some(syserror) = &tc.syserror {
+                if let Some(system_err) = &tc.system_err {
                     ew.write(XmlEvent::start_element("system-err"))?;
-                    ew.write(XmlEvent::CData(syserror.as_str()))?;
+                    ew.write(XmlEvent::CData(system_err.as_str()))?;
                     ew.write(XmlEvent::end_element())?;
                 }
 
@@ -124,15 +134,15 @@ impl Report {
 
                 ew.write(XmlEvent::end_element())?;
             }
-            if let Some(sysout) = &ts.sysout {
+            if let Some(system_out) = &ts.system_out {
                 ew.write(XmlEvent::start_element("system-out"))?;
-                ew.write(XmlEvent::CData(sysout.as_str()))?;
+                ew.write(XmlEvent::CData(system_out.as_str()))?;
                 ew.write(XmlEvent::end_element())?;
             }
 
-            if let Some(syserror) = &ts.syserror {
+            if let Some(system_err) = &ts.system_err {
                 ew.write(XmlEvent::start_element("system-err"))?;
-                ew.write(XmlEvent::CData(syserror.as_str()))?;
+                ew.write(XmlEvent::CData(system_err.as_str()))?;
                 ew.write(XmlEvent::end_element())?;
             }
 
