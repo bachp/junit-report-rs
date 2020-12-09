@@ -2,6 +2,8 @@
 
 Generate JUnit compatible XML reports in Rust.
 
+NEW! Now with output format compatible with GitLab and Jenkins.
+
 ## Example
 
 ```rust
