@@ -11,6 +11,8 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 /// Errors that can occur when creating a `Report`
 pub enum ReportError {
+    #[error("unable to parse the input")]
+    Io(#[from] std::io::Error),
     #[error("unable to write report")]
     Write(#[from] xml::writer::Error),
 }
@@ -118,10 +120,12 @@ impl Report {
                                 .attr("message", &message),
                         )?;
                         if let Some(stdout) = &tc.system_out {
-                            ew.write(XmlEvent::CData(stdout.as_str()))?;
+                            let data = strip_ansi_escapes::strip(stdout.as_str())?;
+                            ew.write(XmlEvent::CData(&String::from_utf8_lossy(&data)))?;
                         }
                         if let Some(stderr) = &tc.system_err {
-                            ew.write(XmlEvent::CData(stderr.as_str()))?;
+                            let data = strip_ansi_escapes::strip(stderr.as_str())?;
+                            ew.write(XmlEvent::CData(&String::from_utf8_lossy(&data)))?;
                         }
                         ew.write(XmlEvent::end_element())?;
                     }
@@ -135,10 +139,12 @@ impl Report {
                                 .attr("message", &message),
                         )?;
                         if let Some(stdout) = &tc.system_out {
-                            ew.write(XmlEvent::CData(stdout.as_str()))?;
+                            let data = strip_ansi_escapes::strip(stdout.as_str())?;
+                            ew.write(XmlEvent::CData(&String::from_utf8_lossy(&data)))?;
                         }
                         if let Some(stderr) = &tc.system_err {
-                            ew.write(XmlEvent::CData(stderr.as_str()))?;
+                            let data = strip_ansi_escapes::strip(stderr.as_str())?;
+                            ew.write(XmlEvent::CData(&String::from_utf8_lossy(&data)))?;
                         }
                         ew.write(XmlEvent::end_element())?;
                     }
