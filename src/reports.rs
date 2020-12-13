@@ -11,6 +11,8 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 /// Errors that can occur when creating a `Report`
 pub enum ReportError {
+    #[error("unable to parse the input")]
+    Io(#[from] std::io::Error),
     #[error("unable to write report")]
     Write(#[from] xml::writer::Error),
 }
@@ -94,20 +96,20 @@ impl Report {
                     )?;
                 }
 
-                if let Some(system_out) = &tc.system_out {
-                    ew.write(XmlEvent::start_element("system-out"))?;
-                    ew.write(XmlEvent::CData(system_out.as_str()))?;
-                    ew.write(XmlEvent::end_element())?;
-                }
-
-                if let Some(system_err) = &tc.system_err {
-                    ew.write(XmlEvent::start_element("system-err"))?;
-                    ew.write(XmlEvent::CData(system_err.as_str()))?;
-                    ew.write(XmlEvent::end_element())?;
-                }
-
                 match tc.result {
-                    TestResult::Success => {}
+                    TestResult::Success => {
+                        if let Some(system_out) = &tc.system_out {
+                            ew.write(XmlEvent::start_element("system-out"))?;
+                            ew.write(XmlEvent::CData(system_out.as_str()))?;
+                            ew.write(XmlEvent::end_element())?;
+                        }
+
+                        if let Some(system_err) = &tc.system_err {
+                            ew.write(XmlEvent::start_element("system-err"))?;
+                            ew.write(XmlEvent::CData(system_err.as_str()))?;
+                            ew.write(XmlEvent::end_element())?;
+                        }
+                    }
                     TestResult::Error {
                         ref type_,
                         ref message,
@@ -117,6 +119,14 @@ impl Report {
                                 .attr("type", &type_)
                                 .attr("message", &message),
                         )?;
+                        if let Some(stdout) = &tc.system_out {
+                            let data = strip_ansi_escapes::strip(stdout.as_str())?;
+                            ew.write(XmlEvent::CData(&String::from_utf8_lossy(&data)))?;
+                        }
+                        if let Some(stderr) = &tc.system_err {
+                            let data = strip_ansi_escapes::strip(stderr.as_str())?;
+                            ew.write(XmlEvent::CData(&String::from_utf8_lossy(&data)))?;
+                        }
                         ew.write(XmlEvent::end_element())?;
                     }
                     TestResult::Failure {
@@ -128,12 +138,21 @@ impl Report {
                                 .attr("type", &type_)
                                 .attr("message", &message),
                         )?;
+                        if let Some(stdout) = &tc.system_out {
+                            let data = strip_ansi_escapes::strip(stdout.as_str())?;
+                            ew.write(XmlEvent::CData(&String::from_utf8_lossy(&data)))?;
+                        }
+                        if let Some(stderr) = &tc.system_err {
+                            let data = strip_ansi_escapes::strip(stderr.as_str())?;
+                            ew.write(XmlEvent::CData(&String::from_utf8_lossy(&data)))?;
+                        }
                         ew.write(XmlEvent::end_element())?;
                     }
                 };
 
                 ew.write(XmlEvent::end_element())?;
             }
+
             if let Some(system_out) = &ts.system_out {
                 ew.write(XmlEvent::start_element("system-out"))?;
                 ew.write(XmlEvent::CData(system_out.as_str()))?;

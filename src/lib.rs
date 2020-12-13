@@ -233,7 +233,7 @@ mod tests {
     }
 
     #[test]
-    fn testcases() {
+    fn testcases_no_stdout_stderr() {
         use crate::{Duration, Report, TestCase, TestSuite, TimeZone, Utc};
 
         let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
@@ -285,7 +285,7 @@ mod tests {
     }
 
     #[test]
-    fn tescases_with_sysout_and_syserr() {
+    fn test_cases_with_sysout_and_syserr() {
         use crate::{Duration, Report, TestCase, TestSuite, TimeZone, Utc};
 
         let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
@@ -306,8 +306,8 @@ mod tests {
             "assert_eq",
             "not equal",
         )
-        .set_system_out("Sysout and syserror mixed in")
-        .set_system_err("Another syserror message");
+        .set_system_out("System out or error message")
+        .set_system_err("Another system error message");
 
         let ts1 = TestSuite::new("ts1").set_timestamp(timestamp);
         let ts2 = TestSuite::new("ts2")
@@ -332,13 +332,10 @@ mod tests {
       <system-out><![CDATA[Some sysout message]]></system-out>
     </testcase>
     <testcase name=\"error test\" time=\"5\">
-      <system-err><![CDATA[Some syserror message]]></system-err>
-      <error type=\"git error\" message=\"unable to fetch\" />
+      <error type=\"git error\" message=\"unable to fetch\"><![CDATA[Some syserror message]]></error>
     </testcase>
     <testcase name=\"failure test\" time=\"10\">
-      <system-out><![CDATA[Sysout and syserror mixed in]]></system-out>
-      <system-err><![CDATA[Another syserror message]]></system-err>
-      <failure type=\"assert_eq\" message=\"not equal\" />
+      <failure type=\"assert_eq\" message=\"not equal\"><![CDATA[System out or error message]]><![CDATA[Another system error message]]></failure>
     </testcase>
   </testsuite>
 </testsuites>"

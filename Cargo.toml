@@ -14,6 +14,7 @@ chrono = "0.4.11"
 xml-rs = "0.8.3"
 derive-getters = "0.1.0"
 thiserror = "1.0.19"
+strip-ansi-escapes = "0.1.0"
 
 [dev-dependencies]
 commandspec = "0.12.2"

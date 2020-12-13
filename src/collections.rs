@@ -129,10 +129,7 @@ impl TestCase {
 
     /// Check if a `TestCase` is successful
     pub fn is_success(&self) -> bool {
-        match self.result {
-            TestResult::Success => true,
-            _ => false,
-        }
+        matches!(self.result, TestResult::Success)
     }
 
     /// Creates a new erroneous `TestCase`
@@ -154,10 +151,7 @@ impl TestCase {
 
     /// Check if a `TestCase` is erroneous
     pub fn is_error(&self) -> bool {
-        match self.result {
-            TestResult::Error { .. } => true,
-            _ => false,
-        }
+        matches!(self.result, TestResult::Error { .. })
     }
 
     /// Creates a new failed `TestCase`
@@ -179,10 +173,7 @@ impl TestCase {
 
     /// Check if a `TestCase` failed
     pub fn is_failure(&self) -> bool {
-        match self.result {
-            TestResult::Failure { .. } => true,
-            _ => false,
-        }
+        matches!(self.result, TestResult::Failure { .. })
     }
 }
 
