@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.4.1] - 2021-03-02
+
+### Fixed
+
 - Output format compatible with GitLab and Jenkins.
 
 ## [0.4.0] - 2020-06-04
