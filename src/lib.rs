@@ -50,7 +50,7 @@ mod collections;
 mod reports;
 
 pub use crate::collections::{TestCase, TestSuite};
-pub use crate::reports::Report;
+pub use crate::reports::{Report, ReportError};
 
 #[cfg(test)]
 mod tests {
