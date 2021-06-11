@@ -70,6 +70,10 @@ impl TestSuite {
         self.testcases.iter().filter(|x| x.is_failure()).count()
     }
 
+    pub fn skipped(&self) -> usize {
+        self.testcases.iter().filter(|x| x.is_skipped()).count()
+    }
+
     pub fn time(&self) -> Duration {
         self.testcases
             .iter()
@@ -92,6 +96,7 @@ pub struct TestCase {
 #[derive(Debug, Clone)]
 pub enum TestResult {
     Success,
+    Skipped,
     Error { type_: String, message: String },
     Failure { type_: String, message: String },
 }
@@ -174,6 +179,25 @@ impl TestCase {
     /// Check if a `TestCase` failed
     pub fn is_failure(&self) -> bool {
         matches!(self.result, TestResult::Failure { .. })
+    }
+
+    /// Create a new ignored `TestCase`
+    ///
+    /// An ignored `TestCase` is one where an ignored or skipped
+    pub fn skipped(name: &str) -> Self {
+        TestCase {
+            name: name.into(),
+            time: Duration::zero(),
+            result: TestResult::Skipped,
+            classname: None,
+            system_out: None,
+            system_err: None,
+        }
+    }
+
+    /// Check if a `TestCase` ignored
+    pub fn is_skipped(&self) -> bool {
+        matches!(self.result, TestResult::Skipped)
     }
 }
 

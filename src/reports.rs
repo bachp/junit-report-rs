@@ -147,6 +147,10 @@ impl Report {
                             ew.write(XmlEvent::CData(&String::from_utf8_lossy(&data)))?;
                         }
                         ew.write(XmlEvent::end_element())?;
+                    },
+                    TestResult::Skipped => {
+                        ew.write(XmlEvent::start_element("skipped"))?;
+                        ew.write(XmlEvent::end_element())?;
                     }
                 };
 
