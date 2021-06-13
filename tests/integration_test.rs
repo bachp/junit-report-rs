@@ -28,12 +28,14 @@ fn reference_report() {
         "assert_eq",
         "What was not true",
     );
+    let test_ignored = TestCase::skipped("test4");
 
     let ts1 = TestSuite::new("ts1")
         .set_timestamp(timestamp)
         .add_testcase(test_success)
         .add_testcase(test_failure)
-        .add_testcase(test_error);
+        .add_testcase(test_error)
+        .add_testcase(test_ignored);
 
     let r = Report::new().add_testsuite(ts1);
 
@@ -85,12 +87,14 @@ fn validate_generated_xml_schema() {
         "Could not clone",
     );
     let test_failure = TestCase::failure("Burk", Duration::seconds(10), "asdfasf", "asdfajfhk");
+    let test_skipped = TestCase::skipped("Alpha");
 
     let ts1 = TestSuite::new("Some Testsuite")
         .set_timestamp(timestamp)
         .add_testcase(test_success)
         .add_testcase(test_failure)
-        .add_testcase(test_error);
+        .add_testcase(test_error)
+        .add_testcase(test_skipped);
 
     let r = Report::new().add_testsuite(ts1);
 

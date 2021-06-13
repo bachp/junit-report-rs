@@ -148,6 +148,10 @@ impl Report {
                         }
                         ew.write(XmlEvent::end_element())?;
                     }
+                    TestResult::Skipped => {
+                        ew.write(XmlEvent::start_element("skipped"))?;
+                        ew.write(XmlEvent::end_element())?;
+                    }
                 };
 
                 ew.write(XmlEvent::end_element())?;
