@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.5.0] - 2021-06-15
+
+## Added
+- Support for skipped or ignored testcases
+## BREAKING CHANGES
+- Adding support for skipped and ignored testcases extends the `TestResult` struct by one more variant.
+
 ## [0.4.2] - 2021-05-28
 
 ### Fixed
