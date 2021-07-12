@@ -53,48 +53,55 @@ mod collections;
 mod reports;
 
 pub use crate::collections::{TestCase, TestCaseBuilder, TestSuite, TestSuiteBuilder};
-pub use crate::reports::{Report, ReportError, ReportBuilder};
+pub use crate::reports::{Report, ReportBuilder, ReportError};
 
 #[cfg(test)]
 mod tests {
-    pub fn normalize(out: Vec<u8>) -> String {
-        String::from_utf8(out).unwrap().replace("\r\n", "\n")
-    }
+  pub fn normalize(out: Vec<u8>) -> String {
+    String::from_utf8(out).unwrap().replace("\r\n", "\n")
+  }
 
-    #[test]
-    fn empty_testsuites() {
-        use crate::Report;
+  #[test]
+  fn empty_testsuites() {
+    use crate::Report;
 
-        let r = Report::new();
+    let r = Report::new();
 
-        let mut out: Vec<u8> = Vec::new();
+    let mut out: Vec<u8> = Vec::new();
 
-        r.write_xml(&mut out).unwrap();
+    r.write_xml(&mut out).unwrap();
 
-        assert_eq!(
-            normalize(out),
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<testsuites />"
-        );
-    }
+    assert_eq!(
+      normalize(out),
+      "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<testsuites />"
+    );
+  }
 
-    #[test]
-    fn add_empty_testsuite_single() {
-        use crate::ReportBuilder;
-        use crate::TestSuiteBuilder;
-        use crate::{TimeZone, Utc};
+  #[test]
+  fn add_empty_testsuite_single() {
+    use crate::ReportBuilder;
+    use crate::TestSuiteBuilder;
+    use crate::{TimeZone, Utc};
 
-        let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
+    let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
 
-        let ts1 = TestSuiteBuilder::new("ts1").set_timestamp(timestamp).build();
-        let ts2 = TestSuiteBuilder::new("ts2").set_timestamp(timestamp).build();
+    let ts1 = TestSuiteBuilder::new("ts1")
+      .set_timestamp(timestamp)
+      .build();
+    let ts2 = TestSuiteBuilder::new("ts2")
+      .set_timestamp(timestamp)
+      .build();
 
-        let r = ReportBuilder::new().add_testsuite(ts1).add_testsuite(ts2).build();
+    let r = ReportBuilder::new()
+      .add_testsuite(ts1)
+      .add_testsuite(ts2)
+      .build();
 
-        let mut out: Vec<u8> = Vec::new();
+    let mut out: Vec<u8> = Vec::new();
 
-        r.write_xml(&mut out).unwrap();
+    r.write_xml(&mut out).unwrap();
 
-        assert_eq!(
+    assert_eq!(
             normalize(out),
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <testsuites>
@@ -102,28 +109,28 @@ mod tests {
   <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\" />
 </testsuites>"
         );
-    }
+  }
 
-    #[test]
-    fn add_empty_testsuite_single_with_sysout() {
-        use crate::ReportBuilder;
-        use crate::TestSuiteBuilder;
-        use crate::{TimeZone, Utc};
+  #[test]
+  fn add_empty_testsuite_single_with_sysout() {
+    use crate::ReportBuilder;
+    use crate::TestSuiteBuilder;
+    use crate::{TimeZone, Utc};
 
-        let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
+    let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
 
-        let ts1 = TestSuiteBuilder::new("ts1")
-            .set_system_out("Test sysout")
-            .set_timestamp(timestamp)
-            .build();
+    let ts1 = TestSuiteBuilder::new("ts1")
+      .set_system_out("Test sysout")
+      .set_timestamp(timestamp)
+      .build();
 
-        let r = ReportBuilder::new().add_testsuite(ts1).build();
+    let r = ReportBuilder::new().add_testsuite(ts1).build();
 
-        let mut out: Vec<u8> = Vec::new();
+    let mut out: Vec<u8> = Vec::new();
 
-        r.write_xml(&mut out).unwrap();
+    r.write_xml(&mut out).unwrap();
 
-        assert_eq!(
+    assert_eq!(
             normalize(out),
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <testsuites>
@@ -132,28 +139,28 @@ mod tests {
   </testsuite>
 </testsuites>"
         );
-    }
+  }
 
-    #[test]
-    fn add_empty_testsuite_single_with_syserror() {
-        use crate::ReportBuilder;
-        use crate::TestSuiteBuilder;
-        use crate::{TimeZone, Utc};
+  #[test]
+  fn add_empty_testsuite_single_with_syserror() {
+    use crate::ReportBuilder;
+    use crate::TestSuiteBuilder;
+    use crate::{TimeZone, Utc};
 
-        let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
+    let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
 
-        let ts1 = TestSuiteBuilder::new("ts1")
-            .set_system_err("Test syserror")
-            .set_timestamp(timestamp)
-            .build();
+    let ts1 = TestSuiteBuilder::new("ts1")
+      .set_system_err("Test syserror")
+      .set_timestamp(timestamp)
+      .build();
 
-        let r = ReportBuilder::new().add_testsuite(ts1).build();
+    let r = ReportBuilder::new().add_testsuite(ts1).build();
 
-        let mut out: Vec<u8> = Vec::new();
+    let mut out: Vec<u8> = Vec::new();
 
-        r.write_xml(&mut out).unwrap();
+    r.write_xml(&mut out).unwrap();
 
-        assert_eq!(
+    assert_eq!(
             normalize(out),
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <testsuites>
@@ -162,28 +169,32 @@ mod tests {
   </testsuite>
 </testsuites>"
         );
-    }
+  }
 
-    #[test]
-    fn add_empty_testsuite_batch() {
-        use crate::ReportBuilder;
-        use crate::TestSuiteBuilder;
-        use crate::{TimeZone, Utc};
+  #[test]
+  fn add_empty_testsuite_batch() {
+    use crate::ReportBuilder;
+    use crate::TestSuiteBuilder;
+    use crate::{TimeZone, Utc};
 
-        let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
+    let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
 
-        let ts1 = TestSuiteBuilder::new("ts1").set_timestamp(timestamp).build();
-        let ts2 = TestSuiteBuilder::new("ts2").set_timestamp(timestamp).build();
+    let ts1 = TestSuiteBuilder::new("ts1")
+      .set_timestamp(timestamp)
+      .build();
+    let ts2 = TestSuiteBuilder::new("ts2")
+      .set_timestamp(timestamp)
+      .build();
 
-        let v = vec![ts1, ts2];
+    let v = vec![ts1, ts2];
 
-        let r = ReportBuilder::new().add_testsuites(v).build();
+    let r = ReportBuilder::new().add_testsuites(v).build();
 
-        let mut out: Vec<u8> = Vec::new();
+    let mut out: Vec<u8> = Vec::new();
 
-        r.write_xml(&mut out).unwrap();
+    r.write_xml(&mut out).unwrap();
 
-        assert_eq!(
+    assert_eq!(
             normalize(out),
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <testsuites>
@@ -191,88 +202,96 @@ mod tests {
   <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\" />
 </testsuites>"
         );
-    }
+  }
 
-    #[test]
-    fn count_tests() {
-        use crate::Duration;
-        use crate::{TestCase, TestSuite};
+  #[test]
+  fn count_tests() {
+    use crate::Duration;
+    use crate::{TestCase, TestSuite};
 
-        let mut ts = TestSuite::new("ts");
+    let mut ts = TestSuite::new("ts");
 
-        let tc1 = TestCase::success("mysuccess", Duration::milliseconds(6001));
-        let tc2 = TestCase::error(
-            "myerror",
-            Duration::seconds(6),
-            "Some Error",
-            "An Error happened",
-        );
-        let tc3 = TestCase::failure(
-            "myerror",
-            Duration::seconds(6),
-            "Some failure",
-            "A Failure happened",
-        );
+    let tc1 = TestCase::success("mysuccess", Duration::milliseconds(6001));
+    let tc2 = TestCase::error(
+      "myerror",
+      Duration::seconds(6),
+      "Some Error",
+      "An Error happened",
+    );
+    let tc3 = TestCase::failure(
+      "myerror",
+      Duration::seconds(6),
+      "Some failure",
+      "A Failure happened",
+    );
 
-        assert_eq!(0, ts.tests());
-        assert_eq!(0, ts.errors());
-        assert_eq!(0, ts.failures());
+    assert_eq!(0, ts.tests());
+    assert_eq!(0, ts.errors());
+    assert_eq!(0, ts.failures());
 
-        ts.add_testcase(tc1);
+    ts.add_testcase(tc1);
 
-        assert_eq!(1, ts.tests());
-        assert_eq!(0, ts.errors());
-        assert_eq!(0, ts.failures());
+    assert_eq!(1, ts.tests());
+    assert_eq!(0, ts.errors());
+    assert_eq!(0, ts.failures());
 
-        ts.add_testcase(tc2);
+    ts.add_testcase(tc2);
 
-        assert_eq!(2, ts.tests());
-        assert_eq!(1, ts.errors());
-        assert_eq!(0, ts.failures());
+    assert_eq!(2, ts.tests());
+    assert_eq!(1, ts.errors());
+    assert_eq!(0, ts.failures());
 
-        ts.add_testcase(tc3);
+    ts.add_testcase(tc3);
 
-        assert_eq!(3, ts.tests());
-        assert_eq!(1, ts.errors());
-        assert_eq!(1, ts.failures());
-    }
+    assert_eq!(3, ts.tests());
+    assert_eq!(1, ts.errors());
+    assert_eq!(1, ts.failures());
+  }
 
-    #[test]
-    fn testcases_no_stdout_stderr() {
-        use crate::{Duration, ReportBuilder, TestCaseBuilder, TestSuiteBuilder, TimeZone, Utc};
+  #[test]
+  fn testcases_no_stdout_stderr() {
+    use crate::{Duration, ReportBuilder, TestCaseBuilder, TestSuiteBuilder, TimeZone, Utc};
 
-        let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
+    let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
 
-        let test_success =
-            TestCaseBuilder::success("good test", Duration::milliseconds(15001)).set_classname("MyClass").build();
-        let test_error = TestCaseBuilder::error(
-            "error test",
-            Duration::seconds(5),
-            "git error",
-            "unable to fetch",
-        ).build();
-        let test_failure = TestCaseBuilder::failure(
-            "failure test",
-            Duration::seconds(10),
-            "assert_eq",
-            "not equal",
-        ).build();
+    let test_success = TestCaseBuilder::success("good test", Duration::milliseconds(15001))
+      .set_classname("MyClass")
+      .build();
+    let test_error = TestCaseBuilder::error(
+      "error test",
+      Duration::seconds(5),
+      "git error",
+      "unable to fetch",
+    )
+    .build();
+    let test_failure = TestCaseBuilder::failure(
+      "failure test",
+      Duration::seconds(10),
+      "assert_eq",
+      "not equal",
+    )
+    .build();
 
-        let ts1 = TestSuiteBuilder::new("ts1").set_timestamp(timestamp).build();
-        let ts2 = TestSuiteBuilder::new("ts2")
-            .set_timestamp(timestamp)
-            .add_testcase(test_success)
-            .add_testcase(test_error)
-            .add_testcase(test_failure)
-            .build();
+    let ts1 = TestSuiteBuilder::new("ts1")
+      .set_timestamp(timestamp)
+      .build();
+    let ts2 = TestSuiteBuilder::new("ts2")
+      .set_timestamp(timestamp)
+      .add_testcase(test_success)
+      .add_testcase(test_error)
+      .add_testcase(test_failure)
+      .build();
 
-        let r = ReportBuilder::new().add_testsuite(ts1).add_testsuite(ts2).build();
+    let r = ReportBuilder::new()
+      .add_testsuite(ts1)
+      .add_testsuite(ts2)
+      .build();
 
-        let mut out: Vec<u8> = Vec::new();
+    let mut out: Vec<u8> = Vec::new();
 
-        r.write_xml(&mut out).unwrap();
+    r.write_xml(&mut out).unwrap();
 
-        assert_eq!(
+    assert_eq!(
             normalize(out),
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <testsuites>
@@ -288,51 +307,56 @@ mod tests {
   </testsuite>
 </testsuites>"
         );
-    }
+  }
 
-    #[test]
-    fn test_cases_with_sysout_and_syserr() {
-        use crate::{Duration, ReportBuilder, TestCaseBuilder, TestSuiteBuilder, TimeZone, Utc};
+  #[test]
+  fn test_cases_with_sysout_and_syserr() {
+    use crate::{Duration, ReportBuilder, TestCaseBuilder, TestSuiteBuilder, TimeZone, Utc};
 
-        let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
+    let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
 
-        let test_success = TestCaseBuilder::success("good test", Duration::milliseconds(15001))
-            .set_classname("MyClass")
-            .set_system_out("Some sysout message")
-            .build();
-        let test_error = TestCaseBuilder::error(
-            "error test",
-            Duration::seconds(5),
-            "git error",
-            "unable to fetch",
-        )
-        .set_system_err("Some syserror message")
-        .build();
-        let test_failure = TestCaseBuilder::failure(
-            "failure test",
-            Duration::seconds(10),
-            "assert_eq",
-            "not equal",
-        )
-        .set_system_out("System out or error message")
-        .set_system_err("Another system error message")
-        .build();
+    let test_success = TestCaseBuilder::success("good test", Duration::milliseconds(15001))
+      .set_classname("MyClass")
+      .set_system_out("Some sysout message")
+      .build();
+    let test_error = TestCaseBuilder::error(
+      "error test",
+      Duration::seconds(5),
+      "git error",
+      "unable to fetch",
+    )
+    .set_system_err("Some syserror message")
+    .build();
+    let test_failure = TestCaseBuilder::failure(
+      "failure test",
+      Duration::seconds(10),
+      "assert_eq",
+      "not equal",
+    )
+    .set_system_out("System out or error message")
+    .set_system_err("Another system error message")
+    .build();
 
-        let ts1 = TestSuiteBuilder::new("ts1").set_timestamp(timestamp).build();
-        let ts2 = TestSuiteBuilder::new("ts2")
-            .set_timestamp(timestamp)
-            .add_testcase(test_success)
-            .add_testcase(test_error)
-            .add_testcase(test_failure)
-            .build();
+    let ts1 = TestSuiteBuilder::new("ts1")
+      .set_timestamp(timestamp)
+      .build();
+    let ts2 = TestSuiteBuilder::new("ts2")
+      .set_timestamp(timestamp)
+      .add_testcase(test_success)
+      .add_testcase(test_error)
+      .add_testcase(test_failure)
+      .build();
 
-        let r = ReportBuilder::new().add_testsuite(ts1).add_testsuite(ts2).build();
+    let r = ReportBuilder::new()
+      .add_testsuite(ts1)
+      .add_testsuite(ts2)
+      .build();
 
-        let mut out: Vec<u8> = Vec::new();
+    let mut out: Vec<u8> = Vec::new();
 
-        r.write_xml(&mut out).unwrap();
+    r.write_xml(&mut out).unwrap();
 
-        assert_eq!(
+    assert_eq!(
             normalize(out),
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <testsuites>
@@ -350,5 +374,5 @@ mod tests {
   </testsuite>
 </testsuites>"
         );
-    }
+  }
 }

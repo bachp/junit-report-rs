@@ -362,7 +362,7 @@ impl TestCaseBuilder {
             system_out: self.system_out.clone(),
             system_err: self.system_err.clone(),
         }
-    }    
+    }
 }
 
 // Make sure the readme is tested too

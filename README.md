@@ -12,7 +12,9 @@ Generate JUnit compatible XML reports in Rust.
     use std::fs::File;
 
     // Create a successful test case
-    let test_success = TestCaseBuilder::success("good test", Duration::seconds(15)).set_classname("MyClass").build();
+    let test_success = TestCaseBuilder::success("good test", Duration::seconds(15))
+        .set_classname("MyClass")
+        .build();
 
     // Create a test case that encountered an unexpected error condition
     let test_error = TestCase::error(
