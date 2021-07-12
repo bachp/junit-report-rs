@@ -76,7 +76,7 @@ impl TestSuite {
     }
 }
 
-/// A `TestSuite` groups together several [`TestCase`s](../struct.TestCase.html).
+///  Builder for [`TestSuite`](../struct.TestSuite.html) objects.
 #[derive(Debug, Clone, Getters)]
 pub struct TestSuiteBuilder {
     pub name: String,
@@ -89,7 +89,7 @@ pub struct TestSuiteBuilder {
 }
 
 impl TestSuiteBuilder {
-    /// Create a new `TestSuite` with a given name
+    /// Create a new `TestSuiteBuilder` with a given name
     pub fn new(name: &str) -> Self {
         TestSuiteBuilder {
             hostname: "localhost".into(),
@@ -102,7 +102,7 @@ impl TestSuiteBuilder {
         }
     }
 
-    /// Add a [`TestCase`](../struct.TestCase.html) to the `TestSuite`.
+    /// Add a [`TestCase`](../struct.TestCase.html) to the `TestSuiteBuilder`.
     pub fn add_testcase(&mut self, testcase: TestCase) -> &mut Self {
         self.testcases.push(testcase);
         self
@@ -114,9 +114,9 @@ impl TestSuiteBuilder {
         self
     }
 
-    /// Set the timestamp of the given `TestSuite`.
+    /// Set the timestamp of the `TestSuiteBuilder`.
     ///
-    /// By default the timestamp is set to the time when the `TestSuite` was created.
+    /// By default the timestamp is set to the time when the `TestSuiteBuilder` was created.
     pub fn set_timestamp(&mut self, timestamp: DateTime<Utc>) -> &mut Self {
         self.timestamp = timestamp;
         self
@@ -132,6 +132,7 @@ impl TestSuiteBuilder {
         self
     }
 
+    /// Build and return a [`TestSuite`](../struct.TestSuite.html) object based on the data stored in this TestSuiteBuilder object.
     pub fn build(&self) -> TestSuite {
         TestSuite {
             hostname: self.hostname.clone(),
@@ -262,7 +263,7 @@ impl TestCase {
     }
 }
 
-/// One single test case
+///  Builder for [`TestCase`](../struct.TestCase.html) objects.
 #[derive(Debug, Clone, Getters)]
 pub struct TestCaseBuilder {
     pub name: String,
@@ -274,7 +275,7 @@ pub struct TestCaseBuilder {
 }
 
 impl TestCaseBuilder {
-    /// Creates a new successful `TestCase`
+    /// Creates a new TestCaseBuilder for a successful `TestCase`
     pub fn success(name: &str, time: Duration) -> Self {
         TestCaseBuilder {
             name: name.into(),
@@ -304,7 +305,7 @@ impl TestCaseBuilder {
         self
     }
 
-    /// Creates a new erroneous `TestCase`
+    /// Creates a new TestCaseBuilder for an erroneous `TestCase`
     ///
     /// An erroneous `TestCase` is one that encountered an unexpected error condition.
     pub fn error(name: &str, time: Duration, type_: &str, message: &str) -> Self {
@@ -321,7 +322,7 @@ impl TestCaseBuilder {
         }
     }
 
-    /// Creates a new failed `TestCase`
+    /// Creates a new TestCaseBuilder for a failed `TestCase`
     ///
     /// A failed `TestCase` is one where an explicit assertion failed
     pub fn failure(name: &str, time: Duration, type_: &str, message: &str) -> Self {
@@ -338,7 +339,7 @@ impl TestCaseBuilder {
         }
     }
 
-    /// Create a new ignored `TestCase`
+    /// Creates a new TestCaseBuilder for an ignored `TestCase`
     ///
     /// An ignored `TestCase` is one where an ignored or skipped
     pub fn skipped(name: &str) -> Self {
@@ -352,7 +353,7 @@ impl TestCaseBuilder {
         }
     }
 
-    /// Creates a new successful `TestCase`
+    /// Build and return a [`TestCase`](../struct.TestCase.html) object based on the data stored in this TestCaseBuilder object.
     pub fn build(&self) -> TestCase {
         TestCase {
             name: self.name.clone(),
