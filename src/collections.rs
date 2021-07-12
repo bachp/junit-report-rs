@@ -29,33 +29,28 @@ impl TestSuite {
     }
 
     /// Add a [`TestCase`](../struct.TestCase.html) to the `TestSuite`.
-    pub fn add_testcase(mut self, testcase: TestCase) -> Self {
+    pub fn add_testcase(&mut self, testcase: TestCase) {
         self.testcases.push(testcase);
-        self
     }
 
     /// Add several [`TestCase`s](../struct.TestCase.html) from a Vec.
-    pub fn add_testcases(mut self, testcases: impl IntoIterator<Item = TestCase>) -> Self {
+    pub fn add_testcases(&mut self, testcases: impl IntoIterator<Item = TestCase>) {
         self.testcases.extend(testcases);
-        self
     }
 
     /// Set the timestamp of the given `TestSuite`.
     ///
     /// By default the timestamp is set to the time when the `TestSuite` was created.
-    pub fn set_timestamp(mut self, timestamp: DateTime<Utc>) -> Self {
+    pub fn set_timestamp(&mut self, timestamp: DateTime<Utc>) {
         self.timestamp = timestamp;
-        self
     }
 
-    pub fn set_system_out(mut self, system_out: &str) -> Self {
+    pub fn set_system_out(&mut self, system_out: &str) {
         self.system_out = Some(system_out.to_owned());
-        self
     }
 
-    pub fn set_system_err(mut self, system_err: &str) -> Self {
+    pub fn set_system_err(&mut self, system_err: &str) {
         self.system_err = Some(system_err.to_owned());
-        self
     }
 
     pub fn tests(&self) -> usize {
@@ -115,21 +110,18 @@ impl TestCase {
     }
 
     /// Set the `classname` for the `TestCase`
-    pub fn set_classname(mut self, classname: &str) -> Self {
+    pub fn set_classname(&mut self, classname: &str) {
         self.classname = Some(classname.to_owned());
-        self
     }
 
     /// Set the `system_out` for the `TestCase`
-    pub fn set_system_out(mut self, system_out: &str) -> Self {
+    pub fn set_system_out(&mut self, system_out: &str) {
         self.system_out = Some(system_out.to_owned());
-        self
     }
 
     /// Set the `system_err` for the `TestCase`
-    pub fn set_system_err(mut self, system_err: &str) -> Self {
+    pub fn set_system_err(&mut self, system_err: &str) {
         self.system_err = Some(system_err.to_owned());
-        self
     }
 
     /// Check if a `TestCase` is successful

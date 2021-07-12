@@ -44,15 +44,13 @@ impl Report {
     /// Add a [`TestSuite`](../struct.TestSuite.html) to this report.
     ///
     /// The function takes ownership of the supplied [`TestSuite`](../struct.TestSuite.html).
-    pub fn add_testsuite(mut self, testsuite: TestSuite) -> Self {
+    pub fn add_testsuite(&mut self, testsuite: &mut TestSuite) {
         self.testsuites.push(testsuite);
-        self
     }
 
     /// Add multiple[`TestSuite`s](../struct.TestSuite.html) from an iterator.
-    pub fn add_testsuites(mut self, testsuites: impl IntoIterator<Item = TestSuite>) -> Self {
+    pub fn add_testsuites(&mut self, testsuites: impl IntoIterator<Item = TestSuite>) {
         self.testsuites.extend(testsuites);
-        self
     }
 
     /// Write the XML version of the Report to the given `Writer`.
