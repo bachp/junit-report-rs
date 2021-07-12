@@ -8,11 +8,11 @@ Generate JUnit compatible XML reports in Rust.
 
     extern crate junit_report;
 
-    use junit_report::{Report, TestCase, TestSuite, Duration, TimeZone, Utc};
+    use junit_report::{ReportBuilder, TestCase, TestCaseBuilder, TestSuite, TestSuiteBuilder, Duration, TimeZone, Utc};
     use std::fs::File;
 
     // Create a successful test case
-    let test_success = TestCase::success("good test", Duration::seconds(15)).set_classname("MyClass");
+    let test_success = TestCaseBuilder::success("good test", Duration::seconds(15)).set_classname("MyClass").build();
 
     // Create a test case that encountered an unexpected error condition
     let test_error = TestCase::error(
@@ -36,15 +36,17 @@ Generate JUnit compatible XML reports in Rust.
     // Then we create a second test suite called "ts2" and set an explicit time stamp
     // then we add all the test cases from above
     let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
-    let ts2 = TestSuite::new("ts2").set_timestamp(timestamp)
+    let ts2 = TestSuiteBuilder::new("ts2").set_timestamp(timestamp)
         .add_testcase(test_success)
         .add_testcase(test_error)
-        .add_testcase(test_failure);
+        .add_testcase(test_failure)
+        .build();
 
     // Last we create a report and add all test suites to it
-    let r = Report::new()
+    let r = ReportBuilder::new()
         .add_testsuite(ts1)
-        .add_testsuite(ts2);
+        .add_testsuite(ts2)
+        .build();
 
     // The report can than be written in XML format to any writer
     let mut file = File::create("my-junit.xml").unwrap();

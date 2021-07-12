@@ -44,7 +44,7 @@ impl Report {
     /// Add a [`TestSuite`](../struct.TestSuite.html) to this report.
     ///
     /// The function takes ownership of the supplied [`TestSuite`](../struct.TestSuite.html).
-    pub fn add_testsuite(&mut self, testsuite: &mut TestSuite) {
+    pub fn add_testsuite(&mut self, testsuite: TestSuite) {
         self.testsuites.push(testsuite);
     }
 
@@ -173,5 +173,40 @@ impl Report {
         ew.write(XmlEvent::end_element())?;
 
         Ok(())
+    }
+}
+
+/// Builder for JUnit report objects
+#[derive(Default, Debug, Clone, Getters)]
+pub struct ReportBuilder {
+    testsuites: Vec<TestSuite>,
+}
+
+impl ReportBuilder {
+    /// Create a new empty Report
+    pub fn new() -> ReportBuilder {
+        ReportBuilder {
+            testsuites: Vec::new(),
+        }
+    }
+
+    /// Add a [`TestSuite`](../struct.TestSuite.html) to this report.
+    ///
+    /// The function takes ownership of the supplied [`TestSuite`](../struct.TestSuite.html).
+    pub fn add_testsuite(&mut self, testsuite: TestSuite) -> &mut Self {
+        self.testsuites.push(testsuite);
+        self
+    }
+
+    /// Add multiple[`TestSuite`s](../struct.TestSuite.html) from an iterator.
+    pub fn add_testsuites(&mut self, testsuites: impl IntoIterator<Item = TestSuite>) -> &mut Self {
+        self.testsuites.extend(testsuites);
+        self
+    }
+
+    pub fn build(&self) -> Report {
+        Report {
+            testsuites: self.testsuites.clone(),
+        }
     }
 }
