@@ -41,14 +41,14 @@ impl Report {
         }
     }
 
-    /// Add a [`TestSuite`](../struct.TestSuite.html) to this report.
+    /// Add a [`TestSuite`](struct.TestSuite.html) to this report.
     ///
-    /// The function takes ownership of the supplied [`TestSuite`](../struct.TestSuite.html).
+    /// The function takes ownership of the supplied [`TestSuite`](struct.TestSuite.html).
     pub fn add_testsuite(&mut self, testsuite: TestSuite) {
         self.testsuites.push(testsuite);
     }
 
-    /// Add multiple[`TestSuite`s](../struct.TestSuite.html) from an iterator.
+    /// Add multiple[`TestSuite`s](struct.TestSuite.html) from an iterator.
     pub fn add_testsuites(&mut self, testsuites: impl IntoIterator<Item = TestSuite>) {
         self.testsuites.extend(testsuites);
     }
@@ -176,7 +176,7 @@ impl Report {
     }
 }
 
-/// Builder for JUnit [`Report`](../struct.Report.html) objects
+/// Builder for JUnit [`Report`](struct.Report.html) objects
 #[derive(Default, Debug, Clone, Getters)]
 pub struct ReportBuilder {
     testsuites: Vec<TestSuite>,
@@ -190,21 +190,21 @@ impl ReportBuilder {
         }
     }
 
-    /// Add a [`TestSuite`](../struct.TestSuite.html) to this report builder.
+    /// Add a [`TestSuite`](struct.TestSuite.html) to this report builder.
     ///
-    /// The function takes ownership of the supplied [`TestSuite`](../struct.TestSuite.html).
+    /// The function takes ownership of the supplied [`TestSuite`](struct.TestSuite.html).
     pub fn add_testsuite(&mut self, testsuite: TestSuite) -> &mut Self {
         self.testsuites.push(testsuite);
         self
     }
 
-    /// Add multiple[`TestSuite`s](../struct.TestSuite.html) from an iterator.
+    /// Add multiple[`TestSuite`s](struct.TestSuite.html) from an iterator.
     pub fn add_testsuites(&mut self, testsuites: impl IntoIterator<Item = TestSuite>) -> &mut Self {
         self.testsuites.extend(testsuites);
         self
     }
 
-    /// Build and return a [`Report`](../struct.Report.html) object based on the data stored in this ReportBuilder object.
+    /// Build and return a [`Report`](struct.Report.html) object based on the data stored in this ReportBuilder object.
     pub fn build(&self) -> Report {
         Report {
             testsuites: self.testsuites.clone(),

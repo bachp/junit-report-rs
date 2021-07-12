@@ -2,7 +2,7 @@ use derive_getters::Getters;
 
 pub use chrono::{DateTime, Duration, TimeZone, Utc};
 
-/// A `TestSuite` groups together several [`TestCase`s](../struct.TestCase.html).
+/// A `TestSuite` groups together several [`TestCase`s](struct.TestCase.html).
 #[derive(Debug, Clone, Getters)]
 pub struct TestSuite {
     pub name: String,
@@ -28,12 +28,12 @@ impl TestSuite {
         }
     }
 
-    /// Add a [`TestCase`](../struct.TestCase.html) to the `TestSuite`.
+    /// Add a [`TestCase`](struct.TestCase.html) to the `TestSuite`.
     pub fn add_testcase(&mut self, testcase: TestCase) {
         self.testcases.push(testcase);
     }
 
-    /// Add several [`TestCase`s](../struct.TestCase.html) from a Vec.
+    /// Add several [`TestCase`s](struct.TestCase.html) from a Vec.
     pub fn add_testcases(&mut self, testcases: impl IntoIterator<Item = TestCase>) {
         self.testcases.extend(testcases);
     }
@@ -76,7 +76,7 @@ impl TestSuite {
     }
 }
 
-///  Builder for [`TestSuite`](../struct.TestSuite.html) objects.
+///  Builder for [`TestSuite`](struct.TestSuite.html) objects.
 #[derive(Debug, Clone, Getters)]
 pub struct TestSuiteBuilder {
     pub name: String,
@@ -102,13 +102,13 @@ impl TestSuiteBuilder {
         }
     }
 
-    /// Add a [`TestCase`](../struct.TestCase.html) to the `TestSuiteBuilder`.
+    /// Add a [`TestCase`](struct.TestCase.html) to the `TestSuiteBuilder`.
     pub fn add_testcase(&mut self, testcase: TestCase) -> &mut Self {
         self.testcases.push(testcase);
         self
     }
 
-    /// Add several [`TestCase`s](../struct.TestCase.html) from a Vec.
+    /// Add several [`TestCase`s](struct.TestCase.html) from a Vec.
     pub fn add_testcases(&mut self, testcases: impl IntoIterator<Item = TestCase>) -> &mut Self {
         self.testcases.extend(testcases);
         self
@@ -132,7 +132,7 @@ impl TestSuiteBuilder {
         self
     }
 
-    /// Build and return a [`TestSuite`](../struct.TestSuite.html) object based on the data stored in this TestSuiteBuilder object.
+    /// Build and return a [`TestSuite`](struct.TestSuite.html) object based on the data stored in this TestSuiteBuilder object.
     pub fn build(&self) -> TestSuite {
         TestSuite {
             hostname: self.hostname.clone(),
@@ -263,7 +263,7 @@ impl TestCase {
     }
 }
 
-///  Builder for [`TestCase`](../struct.TestCase.html) objects.
+///  Builder for [`TestCase`](struct.TestCase.html) objects.
 #[derive(Debug, Clone, Getters)]
 pub struct TestCaseBuilder {
     pub name: String,
@@ -353,7 +353,7 @@ impl TestCaseBuilder {
         }
     }
 
-    /// Build and return a [`TestCase`](../struct.TestCase.html) object based on the data stored in this TestCaseBuilder object.
+    /// Build and return a [`TestCase`](struct.TestCase.html) object based on the data stored in this TestCaseBuilder object.
     pub fn build(&self) -> TestCase {
         TestCase {
             name: self.name.clone(),
