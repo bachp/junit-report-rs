@@ -79,38 +79,26 @@ impl TestSuite {
 ///  Builder for [`TestSuite`](struct.TestSuite.html) objects.
 #[derive(Debug, Clone, Getters)]
 pub struct TestSuiteBuilder {
-    pub name: String,
-    pub package: String,
-    pub timestamp: DateTime<Utc>,
-    pub hostname: String,
-    pub testcases: Vec<TestCase>,
-    pub system_out: Option<String>,
-    pub system_err: Option<String>,
+    pub testsuite: TestSuite,
 }
 
 impl TestSuiteBuilder {
     /// Create a new `TestSuiteBuilder` with a given name
     pub fn new(name: &str) -> Self {
         TestSuiteBuilder {
-            hostname: "localhost".into(),
-            package: format!("testsuite/{}", &name),
-            name: name.into(),
-            timestamp: Utc::now(),
-            testcases: Vec::new(),
-            system_out: None,
-            system_err: None,
+            testsuite: TestSuite::new(name),
         }
     }
 
     /// Add a [`TestCase`](struct.TestCase.html) to the `TestSuiteBuilder`.
     pub fn add_testcase(&mut self, testcase: TestCase) -> &mut Self {
-        self.testcases.push(testcase);
+        self.testsuite.testcases.push(testcase);
         self
     }
 
     /// Add several [`TestCase`s](struct.TestCase.html) from a Vec.
     pub fn add_testcases(&mut self, testcases: impl IntoIterator<Item = TestCase>) -> &mut Self {
-        self.testcases.extend(testcases);
+        self.testsuite.testcases.extend(testcases);
         self
     }
 
@@ -118,31 +106,23 @@ impl TestSuiteBuilder {
     ///
     /// By default the timestamp is set to the time when the `TestSuiteBuilder` was created.
     pub fn set_timestamp(&mut self, timestamp: DateTime<Utc>) -> &mut Self {
-        self.timestamp = timestamp;
+        self.testsuite.timestamp = timestamp;
         self
     }
 
     pub fn set_system_out(&mut self, system_out: &str) -> &mut Self {
-        self.system_out = Some(system_out.to_owned());
+        self.testsuite.system_out = Some(system_out.to_owned());
         self
     }
 
     pub fn set_system_err(&mut self, system_err: &str) -> &mut Self {
-        self.system_err = Some(system_err.to_owned());
+        self.testsuite.system_err = Some(system_err.to_owned());
         self
     }
 
     /// Build and return a [`TestSuite`](struct.TestSuite.html) object based on the data stored in this TestSuiteBuilder object.
     pub fn build(&self) -> TestSuite {
-        TestSuite {
-            hostname: self.hostname.clone(),
-            package: self.package.clone(),
-            name: self.name.clone(),
-            timestamp: self.timestamp.clone(),
-            testcases: self.testcases.clone(),
-            system_out: self.system_out.clone(),
-            system_err: self.system_err.clone(),
-        }
+        self.testsuite.clone()
     }
 }
 
