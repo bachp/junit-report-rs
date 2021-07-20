@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.6.0] - 2021-07-20
+
+- Saparate builder types
+# BREAKING CHANGES
+- Seprate types for the data types and the builders. This restores the old data based API from 0.3.0 and moves
+the builder API as introduced in 0.4.0 to their own *Builder types.
+- If you are migrating from 0.3.0 there should be no big changes required.
+- If you migrate from 0.4.0 or 0.5.0 you need the following renames:
+  Report -> ReportBuilder
+  TestSuite -> TestSuiteBuilder
+  TestCase -> TestCaseBuilder
+
+
 ## [0.5.0] - 2021-06-15
 
 ## Added
