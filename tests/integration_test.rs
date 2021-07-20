@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018 Pascal Bach
+ * Copyright (c) 2021 Siemens Mobility GmbH
  *
  * SPDX-License-Identifier:     MIT
  */
@@ -9,13 +10,17 @@ extern crate junit_report;
 
 #[test]
 fn reference_report() {
-    use junit_report::{Duration, Report, TestCase, TestSuite, TimeZone, Utc};
+    use junit_report::{
+        Duration, ReportBuilder, TestCase, TestCaseBuilder, TestSuiteBuilder, TimeZone, Utc,
+    };
     use std::fs::File;
     use std::io::Read;
 
     let timestamp = Utc.ymd(2018, 4, 21).and_hms(12, 02, 0);
 
-    let test_success = TestCase::success("test1", Duration::seconds(15)).set_classname("MyClass");
+    let test_success = TestCaseBuilder::success("test1", Duration::seconds(15))
+        .set_classname("MyClass")
+        .build();
     let test_error = TestCase::error(
         "test3",
         Duration::seconds(5),
@@ -30,14 +35,15 @@ fn reference_report() {
     );
     let test_ignored = TestCase::skipped("test4");
 
-    let ts1 = TestSuite::new("ts1")
+    let ts1 = TestSuiteBuilder::new("ts1")
         .set_timestamp(timestamp)
         .add_testcase(test_success)
         .add_testcase(test_failure)
         .add_testcase(test_error)
-        .add_testcase(test_ignored);
+        .add_testcase(test_ignored)
+        .build();
 
-    let r = Report::new().add_testsuite(ts1);
+    let r = ReportBuilder::new().add_testsuite(ts1).build();
 
     let mut out: Vec<u8> = Vec::new();
 
@@ -74,12 +80,16 @@ fn validate_reference_xml_schema() {
 
 #[test]
 fn validate_generated_xml_schema() {
-    use junit_report::{Duration, Report, TestCase, TestSuite, TimeZone, Utc};
+    use junit_report::{
+        Duration, ReportBuilder, TestCase, TestCaseBuilder, TestSuiteBuilder, TimeZone, Utc,
+    };
     use std::fs::File;
 
     let timestamp = Utc.ymd(2018, 4, 21).and_hms(12, 02, 0);
 
-    let test_success = TestCase::success("MyTest3", Duration::seconds(15)).set_classname("MyClass");
+    let test_success = TestCaseBuilder::success("MyTest3", Duration::seconds(15))
+        .set_classname("MyClass")
+        .build();
     let test_error = TestCase::error(
         "Blabla",
         Duration::seconds(5),
@@ -89,14 +99,15 @@ fn validate_generated_xml_schema() {
     let test_failure = TestCase::failure("Burk", Duration::seconds(10), "asdfasf", "asdfajfhk");
     let test_skipped = TestCase::skipped("Alpha");
 
-    let ts1 = TestSuite::new("Some Testsuite")
+    let ts1 = TestSuiteBuilder::new("Some Testsuite")
         .set_timestamp(timestamp)
         .add_testcase(test_success)
         .add_testcase(test_failure)
         .add_testcase(test_error)
-        .add_testcase(test_skipped);
+        .add_testcase(test_skipped)
+        .build();
 
-    let r = Report::new().add_testsuite(ts1);
+    let r = ReportBuilder::new().add_testsuite(ts1).build();
 
     let mut f = File::create("target/generated.xml").unwrap();
 

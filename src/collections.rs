@@ -1,8 +1,15 @@
+/*
+ * Copyright (c) 2018 Pascal Bach
+ * Copyright (c) 2021 Siemens Mobility GmbH
+ *
+ * SPDX-License-Identifier:     MIT
+ */
+
 use derive_getters::Getters;
 
 pub use chrono::{DateTime, Duration, TimeZone, Utc};
 
-/// A `TestSuite` groups together several [`TestCase`s](../struct.TestCase.html).
+/// A `TestSuite` groups together several [`TestCase`s](struct.TestCase.html).
 #[derive(Debug, Clone, Getters)]
 pub struct TestSuite {
     pub name: String,
@@ -28,34 +35,29 @@ impl TestSuite {
         }
     }
 
-    /// Add a [`TestCase`](../struct.TestCase.html) to the `TestSuite`.
-    pub fn add_testcase(mut self, testcase: TestCase) -> Self {
+    /// Add a [`TestCase`](struct.TestCase.html) to the `TestSuite`.
+    pub fn add_testcase(&mut self, testcase: TestCase) {
         self.testcases.push(testcase);
-        self
     }
 
-    /// Add several [`TestCase`s](../struct.TestCase.html) from a Vec.
-    pub fn add_testcases(mut self, testcases: impl IntoIterator<Item = TestCase>) -> Self {
+    /// Add several [`TestCase`s](struct.TestCase.html) from a Vec.
+    pub fn add_testcases(&mut self, testcases: impl IntoIterator<Item = TestCase>) {
         self.testcases.extend(testcases);
-        self
     }
 
     /// Set the timestamp of the given `TestSuite`.
     ///
     /// By default the timestamp is set to the time when the `TestSuite` was created.
-    pub fn set_timestamp(mut self, timestamp: DateTime<Utc>) -> Self {
+    pub fn set_timestamp(&mut self, timestamp: DateTime<Utc>) {
         self.timestamp = timestamp;
-        self
     }
 
-    pub fn set_system_out(mut self, system_out: &str) -> Self {
+    pub fn set_system_out(&mut self, system_out: &str) {
         self.system_out = Some(system_out.to_owned());
-        self
     }
 
-    pub fn set_system_err(mut self, system_err: &str) -> Self {
+    pub fn set_system_err(&mut self, system_err: &str) {
         self.system_err = Some(system_err.to_owned());
-        self
     }
 
     pub fn tests(&self) -> usize {
@@ -78,6 +80,56 @@ impl TestSuite {
         self.testcases
             .iter()
             .fold(Duration::zero(), |sum, d| sum + d.time)
+    }
+}
+
+///  Builder for [`TestSuite`](struct.TestSuite.html) objects.
+#[derive(Debug, Clone, Getters)]
+pub struct TestSuiteBuilder {
+    pub testsuite: TestSuite,
+}
+
+impl TestSuiteBuilder {
+    /// Create a new `TestSuiteBuilder` with a given name
+    pub fn new(name: &str) -> Self {
+        TestSuiteBuilder {
+            testsuite: TestSuite::new(name),
+        }
+    }
+
+    /// Add a [`TestCase`](struct.TestCase.html) to the `TestSuiteBuilder`.
+    pub fn add_testcase(&mut self, testcase: TestCase) -> &mut Self {
+        self.testsuite.testcases.push(testcase);
+        self
+    }
+
+    /// Add several [`TestCase`s](struct.TestCase.html) from a Vec.
+    pub fn add_testcases(&mut self, testcases: impl IntoIterator<Item = TestCase>) -> &mut Self {
+        self.testsuite.testcases.extend(testcases);
+        self
+    }
+
+    /// Set the timestamp of the `TestSuiteBuilder`.
+    ///
+    /// By default the timestamp is set to the time when the `TestSuiteBuilder` was created.
+    pub fn set_timestamp(&mut self, timestamp: DateTime<Utc>) -> &mut Self {
+        self.testsuite.timestamp = timestamp;
+        self
+    }
+
+    pub fn set_system_out(&mut self, system_out: &str) -> &mut Self {
+        self.testsuite.system_out = Some(system_out.to_owned());
+        self
+    }
+
+    pub fn set_system_err(&mut self, system_err: &str) -> &mut Self {
+        self.testsuite.system_err = Some(system_err.to_owned());
+        self
+    }
+
+    /// Build and return a [`TestSuite`](struct.TestSuite.html) object based on the data stored in this TestSuiteBuilder object.
+    pub fn build(&self) -> TestSuite {
+        self.testsuite.clone()
     }
 }
 
@@ -115,21 +167,18 @@ impl TestCase {
     }
 
     /// Set the `classname` for the `TestCase`
-    pub fn set_classname(mut self, classname: &str) -> Self {
+    pub fn set_classname(&mut self, classname: &str) {
         self.classname = Some(classname.to_owned());
-        self
     }
 
     /// Set the `system_out` for the `TestCase`
-    pub fn set_system_out(mut self, system_out: &str) -> Self {
+    pub fn set_system_out(&mut self, system_out: &str) {
         self.system_out = Some(system_out.to_owned());
-        self
     }
 
     /// Set the `system_err` for the `TestCase`
-    pub fn set_system_err(mut self, system_err: &str) -> Self {
+    pub fn set_system_err(&mut self, system_err: &str) {
         self.system_err = Some(system_err.to_owned());
-        self
     }
 
     /// Check if a `TestCase` is successful
@@ -198,6 +247,71 @@ impl TestCase {
     /// Check if a `TestCase` ignored
     pub fn is_skipped(&self) -> bool {
         matches!(self.result, TestResult::Skipped)
+    }
+}
+
+///  Builder for [`TestCase`](struct.TestCase.html) objects.
+#[derive(Debug, Clone, Getters)]
+pub struct TestCaseBuilder {
+    pub testcase: TestCase,
+}
+
+impl TestCaseBuilder {
+    /// Creates a new TestCaseBuilder for a successful `TestCase`
+    pub fn success(name: &str, time: Duration) -> Self {
+        TestCaseBuilder {
+            testcase: TestCase::success(name, time),
+        }
+    }
+
+    /// Set the `classname` for the `TestCase`
+    pub fn set_classname(&mut self, classname: &str) -> &mut Self {
+        self.testcase.classname = Some(classname.to_owned());
+        self
+    }
+
+    /// Set the `system_out` for the `TestCase`
+    pub fn set_system_out(&mut self, system_out: &str) -> &mut Self {
+        self.testcase.system_out = Some(system_out.to_owned());
+        self
+    }
+
+    /// Set the `system_err` for the `TestCase`
+    pub fn set_system_err(&mut self, system_err: &str) -> &mut Self {
+        self.testcase.system_err = Some(system_err.to_owned());
+        self
+    }
+
+    /// Creates a new TestCaseBuilder for an erroneous `TestCase`
+    ///
+    /// An erroneous `TestCase` is one that encountered an unexpected error condition.
+    pub fn error(name: &str, time: Duration, type_: &str, message: &str) -> Self {
+        TestCaseBuilder {
+            testcase: TestCase::error(name, time, type_, message),
+        }
+    }
+
+    /// Creates a new TestCaseBuilder for a failed `TestCase`
+    ///
+    /// A failed `TestCase` is one where an explicit assertion failed
+    pub fn failure(name: &str, time: Duration, type_: &str, message: &str) -> Self {
+        TestCaseBuilder {
+            testcase: TestCase::failure(name, time, type_, message),
+        }
+    }
+
+    /// Creates a new TestCaseBuilder for an ignored `TestCase`
+    ///
+    /// An ignored `TestCase` is one where an ignored or skipped
+    pub fn skipped(name: &str) -> Self {
+        TestCaseBuilder {
+            testcase: TestCase::skipped(name),
+        }
+    }
+
+    /// Build and return a [`TestCase`](struct.TestCase.html) object based on the data stored in this TestCaseBuilder object.
+    pub fn build(&self) -> TestCase {
+        self.testcase.clone()
     }
 }
 

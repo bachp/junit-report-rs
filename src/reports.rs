@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2018 Pascal Bach
+ * Copyright (c) 2021 Siemens Mobility GmbH
+ *
+ * SPDX-License-Identifier:     MIT
+ */
+
 use std::io::Write;
 
 use crate::collections::{TestResult, TestSuite};
@@ -41,18 +48,16 @@ impl Report {
         }
     }
 
-    /// Add a [`TestSuite`](../struct.TestSuite.html) to this report.
+    /// Add a [`TestSuite`](struct.TestSuite.html) to this report.
     ///
-    /// The function takes ownership of the supplied [`TestSuite`](../struct.TestSuite.html).
-    pub fn add_testsuite(mut self, testsuite: TestSuite) -> Self {
+    /// The function takes ownership of the supplied [`TestSuite`](struct.TestSuite.html).
+    pub fn add_testsuite(&mut self, testsuite: TestSuite) {
         self.testsuites.push(testsuite);
-        self
     }
 
-    /// Add multiple[`TestSuite`s](../struct.TestSuite.html) from an iterator.
-    pub fn add_testsuites(mut self, testsuites: impl IntoIterator<Item = TestSuite>) -> Self {
+    /// Add multiple[`TestSuite`s](struct.TestSuite.html) from an iterator.
+    pub fn add_testsuites(&mut self, testsuites: impl IntoIterator<Item = TestSuite>) {
         self.testsuites.extend(testsuites);
-        self
     }
 
     /// Write the XML version of the Report to the given `Writer`.
@@ -175,5 +180,39 @@ impl Report {
         ew.write(XmlEvent::end_element())?;
 
         Ok(())
+    }
+}
+
+/// Builder for JUnit [`Report`](struct.Report.html) objects
+#[derive(Default, Debug, Clone, Getters)]
+pub struct ReportBuilder {
+    report: Report,
+}
+
+impl ReportBuilder {
+    /// Create a new empty ReportBuilder
+    pub fn new() -> ReportBuilder {
+        ReportBuilder {
+            report: Report::new(),
+        }
+    }
+
+    /// Add a [`TestSuite`](struct.TestSuite.html) to this report builder.
+    ///
+    /// The function takes ownership of the supplied [`TestSuite`](struct.TestSuite.html).
+    pub fn add_testsuite(&mut self, testsuite: TestSuite) -> &mut Self {
+        self.report.testsuites.push(testsuite);
+        self
+    }
+
+    /// Add multiple[`TestSuite`s](struct.TestSuite.html) from an iterator.
+    pub fn add_testsuites(&mut self, testsuites: impl IntoIterator<Item = TestSuite>) -> &mut Self {
+        self.report.testsuites.extend(testsuites);
+        self
+    }
+
+    /// Build and return a [`Report`](struct.Report.html) object based on the data stored in this ReportBuilder object.
+    pub fn build(&self) -> Report {
+        self.report.clone()
     }
 }
