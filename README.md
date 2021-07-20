@@ -1,3 +1,10 @@
+<!--
+Copyright (c) 2018 Pascal Bach
+Copyright (c) 2021 Siemens Mobility GmbH
+
+SPDX-License-Identifier:     MIT
+-->
+
 # JUnit Report in Rust
 
 Generate JUnit compatible XML reports in Rust.
@@ -38,7 +45,8 @@ Generate JUnit compatible XML reports in Rust.
     // Then we create a second test suite called "ts2" and set an explicit time stamp
     // then we add all the test cases from above
     let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
-    let ts2 = TestSuiteBuilder::new("ts2").set_timestamp(timestamp)
+    let ts2 = TestSuiteBuilder::new("ts2")
+        .set_timestamp(timestamp)
         .add_testcase(test_success)
         .add_testcase(test_error)
         .add_testcase(test_failure)

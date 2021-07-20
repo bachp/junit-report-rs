@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018 Pascal Bach
+ * Copyright (c) 2021 Siemens Mobility GmbH
  *
  * SPDX-License-Identifier:     MIT
  */
@@ -88,9 +89,9 @@ mod tests {
     let ts1 = TestSuiteBuilder::new("ts1")
       .set_timestamp(timestamp)
       .build();
-    let ts2 = TestSuiteBuilder::new("ts2")
-      .set_timestamp(timestamp)
-      .build();
+    let mut tsb = TestSuiteBuilder::new("ts2");
+    tsb.set_timestamp(timestamp);
+    let ts2 = tsb.build();
 
     let r = ReportBuilder::new()
       .add_testsuite(ts1)

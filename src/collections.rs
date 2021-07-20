@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) 2018 Pascal Bach
+ * Copyright (c) 2021 Siemens Mobility GmbH
+ *
+ * SPDX-License-Identifier:     MIT
+ */
+
 use derive_getters::Getters;
 
 pub use chrono::{DateTime, Duration, TimeZone, Utc};
@@ -246,42 +253,32 @@ impl TestCase {
 ///  Builder for [`TestCase`](struct.TestCase.html) objects.
 #[derive(Debug, Clone, Getters)]
 pub struct TestCaseBuilder {
-    pub name: String,
-    pub time: Duration,
-    pub result: TestResult,
-    pub classname: Option<String>,
-    pub system_out: Option<String>,
-    pub system_err: Option<String>,
+    pub testcase: TestCase,
 }
 
 impl TestCaseBuilder {
     /// Creates a new TestCaseBuilder for a successful `TestCase`
     pub fn success(name: &str, time: Duration) -> Self {
         TestCaseBuilder {
-            name: name.into(),
-            time,
-            result: TestResult::Success,
-            classname: None,
-            system_out: None,
-            system_err: None,
+            testcase: TestCase::success(name, time),
         }
     }
 
     /// Set the `classname` for the `TestCase`
     pub fn set_classname(&mut self, classname: &str) -> &mut Self {
-        self.classname = Some(classname.to_owned());
+        self.testcase.classname = Some(classname.to_owned());
         self
     }
 
     /// Set the `system_out` for the `TestCase`
     pub fn set_system_out(&mut self, system_out: &str) -> &mut Self {
-        self.system_out = Some(system_out.to_owned());
+        self.testcase.system_out = Some(system_out.to_owned());
         self
     }
 
     /// Set the `system_err` for the `TestCase`
     pub fn set_system_err(&mut self, system_err: &str) -> &mut Self {
-        self.system_err = Some(system_err.to_owned());
+        self.testcase.system_err = Some(system_err.to_owned());
         self
     }
 
@@ -290,15 +287,7 @@ impl TestCaseBuilder {
     /// An erroneous `TestCase` is one that encountered an unexpected error condition.
     pub fn error(name: &str, time: Duration, type_: &str, message: &str) -> Self {
         TestCaseBuilder {
-            name: name.into(),
-            time,
-            result: TestResult::Error {
-                type_: type_.into(),
-                message: message.into(),
-            },
-            classname: None,
-            system_out: None,
-            system_err: None,
+            testcase: TestCase::error(name, time, type_, message),
         }
     }
 
@@ -307,15 +296,7 @@ impl TestCaseBuilder {
     /// A failed `TestCase` is one where an explicit assertion failed
     pub fn failure(name: &str, time: Duration, type_: &str, message: &str) -> Self {
         TestCaseBuilder {
-            name: name.into(),
-            time,
-            result: TestResult::Failure {
-                type_: type_.into(),
-                message: message.into(),
-            },
-            classname: None,
-            system_out: None,
-            system_err: None,
+            testcase: TestCase::failure(name, time, type_, message),
         }
     }
 
@@ -324,25 +305,13 @@ impl TestCaseBuilder {
     /// An ignored `TestCase` is one where an ignored or skipped
     pub fn skipped(name: &str) -> Self {
         TestCaseBuilder {
-            name: name.into(),
-            time: Duration::zero(),
-            result: TestResult::Skipped,
-            classname: None,
-            system_out: None,
-            system_err: None,
+            testcase: TestCase::skipped(name),
         }
     }
 
     /// Build and return a [`TestCase`](struct.TestCase.html) object based on the data stored in this TestCaseBuilder object.
     pub fn build(&self) -> TestCase {
-        TestCase {
-            name: self.name.clone(),
-            time: self.time.clone(),
-            result: self.result.clone(),
-            classname: self.classname.clone(),
-            system_out: self.system_out.clone(),
-            system_err: self.system_err.clone(),
-        }
+        self.testcase.clone()
     }
 }
 

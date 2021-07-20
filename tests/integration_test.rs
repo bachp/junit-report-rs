@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018 Pascal Bach
+ * Copyright (c) 2021 Siemens Mobility GmbH
  *
  * SPDX-License-Identifier:     MIT
  */
