@@ -13,9 +13,8 @@ Generate JUnit compatible XML reports in Rust.
 
 ```rust
 
-    extern crate junit_report;
-
-    use junit_report::{ReportBuilder, TestCase, TestCaseBuilder, TestSuite, TestSuiteBuilder, Duration, TimeZone, Utc};
+    use junit_report::{ReportBuilder, TestCase, TestCaseBuilder, TestSuite, TestSuiteBuilder};
+    use time::{macros::datetime, Duration};
     use std::fs::File;
 
     // Create a successful test case
@@ -44,7 +43,7 @@ Generate JUnit compatible XML reports in Rust.
 
     // Then we create a second test suite called "ts2" and set an explicit time stamp
     // then we add all the test cases from above
-    let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
+    let timestamp = datetime!(1970-01-01 00:01:01 UTC);
     let ts2 = TestSuiteBuilder::new("ts2")
         .set_timestamp(timestamp)
         .add_testcase(test_success)
