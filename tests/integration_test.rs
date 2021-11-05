@@ -6,10 +6,11 @@
  */
 
 use commandspec::sh_command;
-use junit_report::{ReportBuilder, TestCase, TestCaseBuilder, TestSuiteBuilder};
+use junit_report::{
+    datetime, Duration, ReportBuilder, TestCase, TestCaseBuilder, TestSuiteBuilder,
+};
 use std::fs::File;
 use std::io::Read;
-use time::{macros::datetime, Duration};
 
 #[test]
 fn reference_report() {

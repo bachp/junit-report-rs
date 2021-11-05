@@ -10,8 +10,7 @@
 /// ## Example
 ///
 /// ```rust
-///     use time::{Duration, macros::datetime};
-///     use junit_report::{ReportBuilder, TestCase, TestCaseBuilder, TestSuiteBuilder};
+///     use junit_report::{datetime, Duration, ReportBuilder, TestCase, TestCaseBuilder, TestSuiteBuilder};
 ///
 ///     let timestamp = datetime!(1970-01-01 01:01 UTC);
 ///
@@ -50,13 +49,17 @@
 mod collections;
 mod reports;
 
+pub use time::{macros::datetime, Duration, OffsetDateTime};
+
 pub use crate::collections::{TestCase, TestCaseBuilder, TestSuite, TestSuiteBuilder};
 pub use crate::reports::{Report, ReportBuilder, ReportError};
 
 #[cfg(test)]
 mod tests {
-    use crate::{Report, ReportBuilder, TestCase, TestCaseBuilder, TestSuite, TestSuiteBuilder};
-    use time::{macros::datetime, Duration};
+    use crate::{
+        datetime, Duration, Report, ReportBuilder, TestCase, TestCaseBuilder, TestSuite,
+        TestSuiteBuilder,
+    };
 
     pub fn normalize(out: Vec<u8>) -> String {
         String::from_utf8(out).unwrap().replace("\r\n", "\n")

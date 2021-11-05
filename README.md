@@ -13,8 +13,7 @@ Generate JUnit compatible XML reports in Rust.
 
 ```rust
 
-    use junit_report::{ReportBuilder, TestCase, TestCaseBuilder, TestSuite, TestSuiteBuilder};
-    use time::{macros::datetime, Duration};
+    use junit_report::{datetime, Duration, ReportBuilder, TestCase, TestCaseBuilder, TestSuite, TestSuiteBuilder};
     use std::fs::File;
 
     // Create a successful test case
