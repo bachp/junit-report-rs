@@ -10,11 +10,11 @@ readme = "README.md"
 edition = "2018"
 
 [dependencies]
-chrono = "0.4.11"
-xml-rs = "0.8.3"
 derive-getters = "0.2.0"
-thiserror = "1.0.19"
 strip-ansi-escapes = "0.1.0"
+thiserror = "1.0.19"
+time = { version = "0.3.4", features = ["formatting", "macros"] }
+xml-rs = "0.8.3"
 
 [dev-dependencies]
 commandspec = "0.12.2"

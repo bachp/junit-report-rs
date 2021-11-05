@@ -5,18 +5,16 @@
  * SPDX-License-Identifier:     MIT
  */
 
-extern crate chrono;
-extern crate junit_report;
+use commandspec::sh_command;
+use junit_report::{
+    datetime, Duration, ReportBuilder, TestCase, TestCaseBuilder, TestSuiteBuilder,
+};
+use std::fs::File;
+use std::io::Read;
 
 #[test]
 fn reference_report() {
-    use junit_report::{
-        Duration, ReportBuilder, TestCase, TestCaseBuilder, TestSuiteBuilder, TimeZone, Utc,
-    };
-    use std::fs::File;
-    use std::io::Read;
-
-    let timestamp = Utc.ymd(2018, 4, 21).and_hms(12, 02, 0);
+    let timestamp = datetime!(2018-04-21 12:02 UTC);
 
     let test_success = TestCaseBuilder::success("test1", Duration::seconds(15))
         .set_classname("MyClass")
@@ -60,9 +58,6 @@ fn reference_report() {
     assert_eq!(report, reference);
 }
 
-#[macro_use]
-extern crate commandspec;
-
 #[test]
 fn validate_reference_xml_schema() {
     let res = sh_command!(
@@ -80,12 +75,7 @@ fn validate_reference_xml_schema() {
 
 #[test]
 fn validate_generated_xml_schema() {
-    use junit_report::{
-        Duration, ReportBuilder, TestCase, TestCaseBuilder, TestSuiteBuilder, TimeZone, Utc,
-    };
-    use std::fs::File;
-
-    let timestamp = Utc.ymd(2018, 4, 21).and_hms(12, 02, 0);
+    let timestamp = datetime!(2018-04-21 12:02 UTC);
 
     let test_success = TestCaseBuilder::success("MyTest3", Duration::seconds(15))
         .set_classname("MyClass")

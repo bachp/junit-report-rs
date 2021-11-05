@@ -6,15 +6,14 @@
  */
 
 use derive_getters::Getters;
-
-pub use chrono::{DateTime, Duration, TimeZone, Utc};
+use time::{Duration, OffsetDateTime};
 
 /// A `TestSuite` groups together several [`TestCase`s](struct.TestCase.html).
 #[derive(Debug, Clone, Getters)]
 pub struct TestSuite {
     pub name: String,
     pub package: String,
-    pub timestamp: DateTime<Utc>,
+    pub timestamp: OffsetDateTime,
     pub hostname: String,
     pub testcases: Vec<TestCase>,
     pub system_out: Option<String>,
@@ -28,7 +27,7 @@ impl TestSuite {
             hostname: "localhost".into(),
             package: format!("testsuite/{}", &name),
             name: name.into(),
-            timestamp: Utc::now(),
+            timestamp: OffsetDateTime::now_utc(),
             testcases: Vec::new(),
             system_out: None,
             system_err: None,
@@ -48,7 +47,7 @@ impl TestSuite {
     /// Set the timestamp of the given `TestSuite`.
     ///
     /// By default the timestamp is set to the time when the `TestSuite` was created.
-    pub fn set_timestamp(&mut self, timestamp: DateTime<Utc>) {
+    pub fn set_timestamp(&mut self, timestamp: OffsetDateTime) {
         self.timestamp = timestamp;
     }
 
@@ -79,7 +78,7 @@ impl TestSuite {
     pub fn time(&self) -> Duration {
         self.testcases
             .iter()
-            .fold(Duration::zero(), |sum, d| sum + d.time)
+            .fold(Duration::ZERO, |sum, d| sum + d.time)
     }
 }
 
@@ -112,7 +111,7 @@ impl TestSuiteBuilder {
     /// Set the timestamp of the `TestSuiteBuilder`.
     ///
     /// By default the timestamp is set to the time when the `TestSuiteBuilder` was created.
-    pub fn set_timestamp(&mut self, timestamp: DateTime<Utc>) -> &mut Self {
+    pub fn set_timestamp(&mut self, timestamp: OffsetDateTime) -> &mut Self {
         self.testsuite.timestamp = timestamp;
         self
     }
@@ -236,7 +235,7 @@ impl TestCase {
     pub fn skipped(name: &str) -> Self {
         TestCase {
             name: name.into(),
-            time: Duration::zero(),
+            time: Duration::ZERO,
             result: TestResult::Skipped,
             classname: None,
             system_out: None,

@@ -9,9 +9,8 @@ use std::io::Write;
 
 use crate::collections::{TestResult, TestSuite};
 use derive_getters::Getters;
+use time::format_description::well_known::Rfc3339;
 use xml::writer::{EmitterConfig, XmlEvent};
-
-pub use chrono::{DateTime, Duration, TimeZone, Utc};
 
 use thiserror::Error;
 
@@ -22,16 +21,6 @@ pub enum ReportError {
     Io(#[from] std::io::Error),
     #[error("unable to write report")]
     Write(#[from] xml::writer::Error),
-}
-
-fn decimal_seconds(d: &Duration) -> f64 {
-    if let Some(n) = d.num_nanoseconds() {
-        n as f64 / 1_000_000_000.0
-    } else if let Some(n) = d.num_microseconds() {
-        n as f64 / 1_000_000.0
-    } else {
-        d.num_milliseconds() as f64 / 1_000.0
-    }
 }
 
 /// Root element of a JUnit report
@@ -77,8 +66,11 @@ impl Report {
                     .attr("errors", &format!("{}", &ts.errors()))
                     .attr("failures", &format!("{}", &ts.failures()))
                     .attr("hostname", &ts.hostname)
-                    .attr("timestamp", &ts.timestamp.to_rfc3339())
-                    .attr("time", &format!("{}", decimal_seconds(&ts.time()))),
+                    .attr(
+                        "timestamp",
+                        &ts.timestamp.format(&Rfc3339).expect("failed to format"),
+                    )
+                    .attr("time", &format!("{}", ts.time().as_seconds_f64())),
             )?;
 
             //TODO: support properties
@@ -91,13 +83,13 @@ impl Report {
                         XmlEvent::start_element("testcase")
                             .attr("name", &tc.name)
                             .attr("classname", classname)
-                            .attr("time", &format!("{}", decimal_seconds(&tc.time))),
+                            .attr("time", &format!("{}", tc.time.as_seconds_f64())),
                     )?;
                 } else {
                     ew.write(
                         XmlEvent::start_element("testcase")
                             .attr("name", &tc.name)
-                            .attr("time", &format!("{}", decimal_seconds(&tc.time))),
+                            .attr("time", &format!("{}", tc.time.as_seconds_f64())),
                     )?;
                 }
 
@@ -121,8 +113,8 @@ impl Report {
                     } => {
                         ew.write(
                             XmlEvent::start_element("error")
-                                .attr("type", &type_)
-                                .attr("message", &message),
+                                .attr("type", type_)
+                                .attr("message", message),
                         )?;
                         if let Some(stdout) = &tc.system_out {
                             let data = strip_ansi_escapes::strip(stdout.as_str())?;
@@ -140,8 +132,8 @@ impl Report {
                     } => {
                         ew.write(
                             XmlEvent::start_element("failure")
-                                .attr("type", &type_)
-                                .attr("message", &message),
+                                .attr("type", type_)
+                                .attr("message", message),
                         )?;
                         if let Some(stdout) = &tc.system_out {
                             let data = strip_ansi_escapes::strip(stdout.as_str())?;

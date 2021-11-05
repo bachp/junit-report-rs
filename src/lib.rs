@@ -10,11 +10,9 @@
 /// ## Example
 ///
 /// ```rust
+///     use junit_report::{datetime, Duration, ReportBuilder, TestCase, TestCaseBuilder, TestSuiteBuilder};
 ///
-///     use junit_report::{ReportBuilder, TestCase, TestCaseBuilder, TestSuiteBuilder, Duration, TimeZone, Utc};
-///
-///
-///     let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
+///     let timestamp = datetime!(1970-01-01 01:01 UTC);
 ///
 ///     let test_success = TestCase::success("good test", Duration::seconds(15));
 ///     let test_error = TestCase::error(
@@ -48,24 +46,27 @@
 ///
 ///     r.write_xml(&mut out).unwrap();
 /// ```
-pub use chrono::{DateTime, Duration, TimeZone, Utc};
-
 mod collections;
 mod reports;
+
+pub use time::{macros::datetime, Duration, OffsetDateTime};
 
 pub use crate::collections::{TestCase, TestCaseBuilder, TestSuite, TestSuiteBuilder};
 pub use crate::reports::{Report, ReportBuilder, ReportError};
 
 #[cfg(test)]
 mod tests {
+    use crate::{
+        datetime, Duration, Report, ReportBuilder, TestCase, TestCaseBuilder, TestSuite,
+        TestSuiteBuilder,
+    };
+
     pub fn normalize(out: Vec<u8>) -> String {
         String::from_utf8(out).unwrap().replace("\r\n", "\n")
     }
 
     #[test]
     fn empty_testsuites() {
-        use crate::Report;
-
         let r = Report::new();
 
         let mut out: Vec<u8> = Vec::new();
@@ -80,11 +81,7 @@ mod tests {
 
     #[test]
     fn add_empty_testsuite_single() {
-        use crate::ReportBuilder;
-        use crate::TestSuiteBuilder;
-        use crate::{TimeZone, Utc};
-
-        let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
+        let timestamp = datetime!(1970-01-01 01:01 UTC);
 
         let ts1 = TestSuiteBuilder::new("ts1")
             .set_timestamp(timestamp)
@@ -106,19 +103,15 @@ mod tests {
             normalize(out),
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <testsuites>
-  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\" />
-  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\" />
+  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T01:01:00Z\" time=\"0\" />
+  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T01:01:00Z\" time=\"0\" />
 </testsuites>"
         );
     }
 
     #[test]
     fn add_empty_testsuite_single_with_sysout() {
-        use crate::ReportBuilder;
-        use crate::TestSuiteBuilder;
-        use crate::{TimeZone, Utc};
-
-        let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
+        let timestamp = datetime!(1970-01-01 01:01 UTC);
 
         let ts1 = TestSuiteBuilder::new("ts1")
             .set_system_out("Test sysout")
@@ -135,7 +128,7 @@ mod tests {
             normalize(out),
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <testsuites>
-  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">
+  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T01:01:00Z\" time=\"0\">
     <system-out><![CDATA[Test sysout]]></system-out>
   </testsuite>
 </testsuites>"
@@ -144,11 +137,7 @@ mod tests {
 
     #[test]
     fn add_empty_testsuite_single_with_syserror() {
-        use crate::ReportBuilder;
-        use crate::TestSuiteBuilder;
-        use crate::{TimeZone, Utc};
-
-        let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
+        let timestamp = datetime!(1970-01-01 01:01 UTC);
 
         let ts1 = TestSuiteBuilder::new("ts1")
             .set_system_err("Test syserror")
@@ -165,7 +154,7 @@ mod tests {
             normalize(out),
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <testsuites>
-  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\">
+  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T01:01:00Z\" time=\"0\">
     <system-err><![CDATA[Test syserror]]></system-err>
   </testsuite>
 </testsuites>"
@@ -174,11 +163,7 @@ mod tests {
 
     #[test]
     fn add_empty_testsuite_batch() {
-        use crate::ReportBuilder;
-        use crate::TestSuiteBuilder;
-        use crate::{TimeZone, Utc};
-
-        let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
+        let timestamp = datetime!(1970-01-01 01:01 UTC);
 
         let ts1 = TestSuiteBuilder::new("ts1")
             .set_timestamp(timestamp)
@@ -199,17 +184,14 @@ mod tests {
             normalize(out),
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <testsuites>
-  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\" />
-  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\" />
+  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T01:01:00Z\" time=\"0\" />
+  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T01:01:00Z\" time=\"0\" />
 </testsuites>"
         );
     }
 
     #[test]
     fn count_tests() {
-        use crate::Duration;
-        use crate::{TestCase, TestSuite};
-
         let mut ts = TestSuite::new("ts");
 
         let tc1 = TestCase::success("mysuccess", Duration::milliseconds(6001));
@@ -251,9 +233,7 @@ mod tests {
 
     #[test]
     fn testcases_no_stdout_stderr() {
-        use crate::{Duration, ReportBuilder, TestCaseBuilder, TestSuiteBuilder, TimeZone, Utc};
-
-        let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
+        let timestamp = datetime!(1970-01-01 01:01 UTC);
 
         let test_success = TestCaseBuilder::success("good test", Duration::milliseconds(15001))
             .set_classname("MyClass")
@@ -296,8 +276,8 @@ mod tests {
             normalize(out),
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <testsuites>
-  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\" />
-  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"3\" errors=\"1\" failures=\"1\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"30.001\">
+  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T01:01:00Z\" time=\"0\" />
+  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"3\" errors=\"1\" failures=\"1\" hostname=\"localhost\" timestamp=\"1970-01-01T01:01:00Z\" time=\"30.001\">
     <testcase name=\"good test\" classname=\"MyClass\" time=\"15.001\" />
     <testcase name=\"error test\" time=\"5\">
       <error type=\"git error\" message=\"unable to fetch\" />
@@ -312,9 +292,7 @@ mod tests {
 
     #[test]
     fn test_cases_with_sysout_and_syserr() {
-        use crate::{Duration, ReportBuilder, TestCaseBuilder, TestSuiteBuilder, TimeZone, Utc};
-
-        let timestamp = Utc.ymd(1970, 1, 1).and_hms(0, 1, 1);
+        let timestamp = datetime!(1970-01-01 01:01 UTC);
 
         let test_success = TestCaseBuilder::success("good test", Duration::milliseconds(15001))
             .set_classname("MyClass")
@@ -361,8 +339,8 @@ mod tests {
             normalize(out),
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <testsuites>
-  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"0\" />
-  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"3\" errors=\"1\" failures=\"1\" hostname=\"localhost\" timestamp=\"1970-01-01T00:01:01+00:00\" time=\"30.001\">
+  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T01:01:00Z\" time=\"0\" />
+  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"3\" errors=\"1\" failures=\"1\" hostname=\"localhost\" timestamp=\"1970-01-01T01:01:00Z\" time=\"30.001\">
     <testcase name=\"good test\" classname=\"MyClass\" time=\"15.001\">
       <system-out><![CDATA[Some sysout message]]></system-out>
     </testcase>
