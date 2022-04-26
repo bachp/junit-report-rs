@@ -278,7 +278,7 @@ impl TestCaseBuilder {
         self.testcase.classname = Some(classname.to_owned());
         self
     }
-    
+
     /// Set the `file` for the `TestCase`
     pub fn set_filepath(&mut self, filepath: &str) -> &mut Self {
         self.testcase.filepath = Some(filepath.to_owned());
