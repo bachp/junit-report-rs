@@ -139,6 +139,7 @@ pub struct TestCase {
     pub time: Duration,
     pub result: TestResult,
     pub classname: Option<String>,
+    pub filepath: Option<String>,
     pub system_out: Option<String>,
     pub system_err: Option<String>,
 }
@@ -160,6 +161,7 @@ impl TestCase {
             time,
             result: TestResult::Success,
             classname: None,
+            filepath: None,
             system_out: None,
             system_err: None,
         }
@@ -168,6 +170,11 @@ impl TestCase {
     /// Set the `classname` for the `TestCase`
     pub fn set_classname(&mut self, classname: &str) {
         self.classname = Some(classname.to_owned());
+    }
+
+    /// Set the `file` for the `TestCase`
+    pub fn set_filepath(&mut self, filepath: &str) {
+        self.filepath = Some(filepath.to_owned());
     }
 
     /// Set the `system_out` for the `TestCase`
@@ -197,6 +204,7 @@ impl TestCase {
                 message: message.into(),
             },
             classname: None,
+            filepath: None,
             system_out: None,
             system_err: None,
         }
@@ -219,6 +227,7 @@ impl TestCase {
                 message: message.into(),
             },
             classname: None,
+            filepath: None,
             system_out: None,
             system_err: None,
         }
@@ -238,6 +247,7 @@ impl TestCase {
             time: Duration::ZERO,
             result: TestResult::Skipped,
             classname: None,
+            filepath: None,
             system_out: None,
             system_err: None,
         }
@@ -266,6 +276,12 @@ impl TestCaseBuilder {
     /// Set the `classname` for the `TestCase`
     pub fn set_classname(&mut self, classname: &str) -> &mut Self {
         self.testcase.classname = Some(classname.to_owned());
+        self
+    }
+    
+    /// Set the `file` for the `TestCase`
+    pub fn set_filepath(&mut self, filepath: &str) -> &mut Self {
+        self.testcase.filepath = Some(filepath.to_owned());
         self
     }
 

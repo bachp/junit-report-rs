@@ -78,20 +78,21 @@ impl Report {
             //ew.write(XmlEvent::end_element())?;
 
             for tc in &ts.testcases {
+                
+                let time = format!("{}", tc.time.as_seconds_f64());
+                let mut testcase_element = XmlEvent::start_element("testcase")
+                    .attr("name", &tc.name)
+                    .attr("time", &time);
+
                 if let Some(classname) = &tc.classname {
-                    ew.write(
-                        XmlEvent::start_element("testcase")
-                            .attr("name", &tc.name)
-                            .attr("classname", classname)
-                            .attr("time", &format!("{}", tc.time.as_seconds_f64())),
-                    )?;
-                } else {
-                    ew.write(
-                        XmlEvent::start_element("testcase")
-                            .attr("name", &tc.name)
-                            .attr("time", &format!("{}", tc.time.as_seconds_f64())),
-                    )?;
-                }
+                    testcase_element = testcase_element.attr("classname", classname);
+                } 
+                
+                if let Some(filepath) = &tc.filepath {
+                    testcase_element = testcase_element.attr("file", filepath);
+                } 
+
+                ew.write(testcase_element)?;
 
                 match tc.result {
                     TestResult::Success => {

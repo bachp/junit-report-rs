@@ -26,7 +26,7 @@
 ///         Duration::seconds(10),
 ///         "assert_eq",
 ///         "not equal",
-///     ).set_classname("classname")
+///     ).set_classname("classname").set_filepath("./foo.rs")
 ///     .build();
 ///
 ///     let ts1 = TestSuiteBuilder::new("ts1").set_timestamp(timestamp).build();
@@ -237,6 +237,7 @@ mod tests {
 
         let test_success = TestCaseBuilder::success("good test", Duration::milliseconds(15001))
             .set_classname("MyClass")
+            .set_filepath("./foo.rs")
             .build();
         let test_error = TestCaseBuilder::error(
             "error test",
@@ -278,7 +279,7 @@ mod tests {
 <testsuites>
   <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T01:01:00Z\" time=\"0\" />
   <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"3\" errors=\"1\" failures=\"1\" hostname=\"localhost\" timestamp=\"1970-01-01T01:01:00Z\" time=\"30.001\">
-    <testcase name=\"good test\" classname=\"MyClass\" time=\"15.001\" />
+    <testcase name=\"good test\" time=\"15.001\" classname=\"MyClass\" file=\"./foo.rs\" />
     <testcase name=\"error test\" time=\"5\">
       <error type=\"git error\" message=\"unable to fetch\" />
     </testcase>
@@ -296,6 +297,7 @@ mod tests {
 
         let test_success = TestCaseBuilder::success("good test", Duration::milliseconds(15001))
             .set_classname("MyClass")
+            .set_filepath("./foo.rs")
             .set_system_out("Some sysout message")
             .build();
         let test_error = TestCaseBuilder::error(
@@ -341,7 +343,7 @@ mod tests {
 <testsuites>
   <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T01:01:00Z\" time=\"0\" />
   <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"3\" errors=\"1\" failures=\"1\" hostname=\"localhost\" timestamp=\"1970-01-01T01:01:00Z\" time=\"30.001\">
-    <testcase name=\"good test\" classname=\"MyClass\" time=\"15.001\">
+    <testcase name=\"good test\" time=\"15.001\" classname=\"MyClass\" file=\"./foo.rs\">
       <system-out><![CDATA[Some sysout message]]></system-out>
     </testcase>
     <testcase name=\"error test\" time=\"5\">
