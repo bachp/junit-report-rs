@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.7.1] - 2022-04-27
+
+- Added support for an optional `file` attribute in test cases
+
 ## [0.7.0] - 2021-11-06
 # BREAKING CHANGES
 - Switch from `chrono` to `time`
