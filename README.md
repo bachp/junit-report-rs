@@ -19,6 +19,7 @@ Generate JUnit compatible XML reports in Rust.
     // Create a successful test case
     let test_success = TestCaseBuilder::success("good test", Duration::seconds(15))
         .set_classname("MyClass")
+        .set_filepath("MyFilePath")
         .build();
 
     // Create a test case that encountered an unexpected error condition

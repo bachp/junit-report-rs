@@ -18,6 +18,7 @@ fn reference_report() {
 
     let test_success = TestCaseBuilder::success("test1", Duration::seconds(15))
         .set_classname("MyClass")
+        .set_filepath("./foo.rs")
         .build();
     let test_error = TestCase::error(
         "test3",
