@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.8.0] - 2022-09-09
+
 - Bump Rust edition to 2021
 # BREAKING CHANGES
 - Switch from `xml-rs` to `quick-xml` due to maintenance status
