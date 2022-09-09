@@ -228,13 +228,16 @@ impl ReportBuilder {
     }
 }
 
+/// [`Writer`] extension.
 trait WriterExt {
+    /// [`Write`]s in case `val` is [`Some`] or does nothing otherwise.
     fn write_opt<T>(
         &mut self,
         val: Option<T>,
         inner: impl FnOnce(&mut Self, T) -> Result<&mut Self>,
     ) -> Result<&mut Self>;
 
+    /// [`Write`]s every item of the [`Iterator`].
     fn write_iter<T, I>(
         &mut self,
         val: I,
@@ -269,7 +272,10 @@ impl<W: Write> WriterExt for Writer<W> {
     }
 }
 
+/// [`ElementWriter`] extension.
 trait ElementWriterExt<'a, W: Write> {
+    /// [`Writes`] with `inner` in case `is_empty` resolves to [`false`] or
+    /// [`Write`]s with [`ElementWriter::write_empty`] otherwise.
     fn write_empty_or_inner<Inner>(
         self,
         is_empty: impl FnOnce(&mut Self) -> bool,
