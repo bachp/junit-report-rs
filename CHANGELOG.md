@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+- Bump Rust edition to 2021
+# BREAKING CHANGES
+- Switch from `xml-rs` to `quick-xml` due to maintenance status
+  - Change `Err` type of `Report::write_xml()`
+  - Remove indentations and newlines from the generated `Report`
+
 ## [0.7.1] - 2022-04-27
 
 - Added support for an optional `file` attribute in test cases

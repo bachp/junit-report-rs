@@ -5,12 +5,21 @@
  * SPDX-License-Identifier:     MIT
  */
 
+use std::fs::{self, File};
+
 use commandspec::sh_command;
 use junit_report::{
     datetime, Duration, ReportBuilder, TestCase, TestCaseBuilder, TestSuiteBuilder,
 };
-use std::fs::File;
-use std::io::Read;
+use once_cell::sync::Lazy;
+use regex::{Regex, RegexBuilder};
+
+static REGEX: Lazy<Regex> = Lazy::new(|| {
+    RegexBuilder::new("\\n|^\\s+")
+        .multi_line(true)
+        .build()
+        .unwrap()
+});
 
 #[test]
 fn reference_report() {
@@ -48,13 +57,10 @@ fn reference_report() {
 
     r.write_xml(&mut out).unwrap();
 
-    let report = String::from_utf8(out).unwrap().replace("\r\n", "\n");
+    let report = String::from_utf8(out).unwrap();
 
-    let mut reference = String::new();
-
-    let mut f = File::open("tests/reference.xml").unwrap();
-    f.read_to_string(&mut reference).unwrap();
-    let reference = reference.replace("\r\n", "\n");
+    let reference = fs::read_to_string("tests/reference.xml").unwrap();
+    let reference = REGEX.replace_all(reference.as_str(), "");
 
     assert_eq!(report, reference);
 }
