@@ -6,8 +6,8 @@
  */
 
 use std::fs::{self, File};
+use std::process::Command;
 
-use commandspec::sh_command;
 use junit_report::{
     datetime, Duration, ReportBuilder, TestCase, TestCaseBuilder, TestSuiteBuilder,
 };
@@ -67,14 +67,13 @@ fn reference_report() {
 
 #[test]
 fn validate_reference_xml_schema() {
-    let res = sh_command!(
-        r"
-        xmllint --schema tests/JUnit.xsd tests/reference.xml --noout
-        "
-    )
-    .unwrap()
-    .output()
-    .unwrap(); //.expect("reference.xml does not validate against XML Schema")
+    let res = Command::new("xmllint")
+        .arg("--schema")
+        .arg("tests/JUnit.xsd")
+        .arg("tests/reference.xml")
+        .arg("--noout")
+        .output()
+        .expect("reference.xml does not validate against XML Schema");
     print!("{}", String::from_utf8_lossy(&res.stdout));
     eprint!("{}", String::from_utf8_lossy(&res.stderr));
     assert!(res.status.success());
@@ -110,15 +109,13 @@ fn validate_generated_xml_schema() {
 
     r.write_xml(&mut f).unwrap();
 
-    let res = sh_command!(
-        r"
-
-        xmllint --schema tests/JUnit.xsd target/generated.xml --noout
-        "
-    )
-    .unwrap()
-    .output()
-    .unwrap(); //.expect("reference.xml does not validate against XML Schema")
+    let res = Command::new("xmllint")
+        .arg("--schema")
+        .arg("tests/JUnit.xsd")
+        .arg("target/generated.xml")
+        .arg("--noout")
+        .output()
+        .expect("generated.xml does not validate against XML Schema");
     print!("{}", String::from_utf8_lossy(&res.stdout));
     eprint!("{}", String::from_utf8_lossy(&res.stderr));
     assert!(res.status.success());
