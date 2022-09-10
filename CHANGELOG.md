@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.8.1] - 2022-09-10
+
+- Remove unsecure dev dependency from `failure`
+
 ## [0.8.0] - 2022-09-09
 
 - Bump Rust edition to 2021
