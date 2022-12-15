@@ -50,6 +50,7 @@
 mod collections;
 mod reports;
 
+pub use quick_xml::Error;
 pub use time::{macros::datetime, Duration, OffsetDateTime};
 
 pub use crate::{
