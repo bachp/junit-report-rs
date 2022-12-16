@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.8.2] - 2022-12-16
+
 - Re-export `quick_xml::Error` as `junit_report::Error`
 
 ## [0.8.1] - 2022-09-10
