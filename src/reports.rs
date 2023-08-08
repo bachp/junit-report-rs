@@ -141,14 +141,14 @@ impl TestCase {
                                 |_| self.system_out.is_none() && self.system_err.is_none(),
                                 |w| {
                                     w.write_opt(self.system_out.as_ref(), |w, stdout| {
-                                        let data = strip_ansi_escapes::strip(stdout.as_str())?;
+                                        let data = strip_ansi_escapes::strip(stdout.as_str());
                                         w.write_event(Event::CData(BytesCData::new(
                                             String::from_utf8_lossy(&data),
                                         )))
                                         .map(|_| w)
                                     })?
                                     .write_opt(self.system_err.as_ref(), |w, stderr| {
-                                        let data = strip_ansi_escapes::strip(stderr.as_str())?;
+                                        let data = strip_ansi_escapes::strip(stderr.as_str());
                                         w.write_event(Event::CData(BytesCData::new(
                                             String::from_utf8_lossy(&data),
                                         )))
@@ -170,14 +170,14 @@ impl TestCase {
                                 |_| self.system_out.is_none() && self.system_err.is_none(),
                                 |w| {
                                     w.write_opt(self.system_out.as_ref(), |w, stdout| {
-                                        let data = strip_ansi_escapes::strip(stdout.as_str())?;
+                                        let data = strip_ansi_escapes::strip(stdout.as_str());
                                         w.write_event(Event::CData(BytesCData::new(
                                             String::from_utf8_lossy(&data),
                                         )))
                                         .map(|_| w)
                                     })?
                                     .write_opt(self.system_err.as_ref(), |w, stderr| {
-                                        let data = strip_ansi_escapes::strip(stderr.as_str())?;
+                                        let data = strip_ansi_escapes::strip(stderr.as_str());
                                         w.write_event(Event::CData(BytesCData::new(
                                             String::from_utf8_lossy(&data),
                                         )))
