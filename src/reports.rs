@@ -176,6 +176,30 @@ impl TestCase {
                             .create_element("skipped")
                             .write_empty()
                             .map_err(Error::from),
+                        TestResult::SkippedWithCause {
+                            ref type_,
+                            ref message,
+                            ref cause,
+                        } => w
+                            .create_element("skipped")
+                            .with_attributes([
+                                ("type", type_.as_str()),
+                                ("message", message.as_str()),
+                            ])
+                            .write_empty_or_inner(
+                                |_| cause.is_none(),
+                                |w| {
+                                    w.write_opt(cause.as_ref(), |w, cause| {
+                                        let data = BytesCData::new(cause.as_str());
+                                        w.write_event(Event::CData(BytesCData::new(
+                                            String::from_utf8_lossy(&data),
+                                        )))
+                                        .map_err(Error::from)
+                                        .map(|_| w)
+                                    })
+                                    .map(drop)
+                                },
+                            ),
                     }?
                     .write_opt(
                         self.system_out.as_ref(),

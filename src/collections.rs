@@ -149,6 +149,11 @@ pub struct TestCase {
 pub enum TestResult {
     Success,
     Skipped,
+    SkippedWithCause {
+        type_: String,
+        message: String,
+        cause: Option<String>,
+    },
     Error {
         type_: String,
         message: String,
@@ -263,9 +268,31 @@ impl TestCase {
         }
     }
 
+    /// Create a new ignored `TestCase` with an ignore cause
+    ///
+    /// An ignored `TestCase` is one where an ignored or skipped
+    pub fn skipped_with_cause(name: &str, type_: &str, message: &str) -> Self {
+        TestCase {
+            name: name.into(),
+            time: Duration::ZERO,
+            result: TestResult::SkippedWithCause {
+                type_: type_.into(),
+                message: message.into(),
+                cause: None,
+            },
+            classname: None,
+            filepath: None,
+            system_out: None,
+            system_err: None,
+        }
+    }
+
     /// Check if a `TestCase` ignored
     pub fn is_skipped(&self) -> bool {
-        matches!(self.result, TestResult::Skipped)
+        matches!(
+            self.result,
+            TestResult::Skipped | TestResult::SkippedWithCause { .. }
+        )
     }
 }
 
@@ -343,6 +370,15 @@ impl TestCaseBuilder {
     pub fn skipped(name: &str) -> Self {
         TestCaseBuilder {
             testcase: TestCase::skipped(name),
+        }
+    }
+
+    /// Creates a new TestCaseBuilder for an ignored `TestCase`, with a cause
+    ///
+    /// An ignored `TestCase` is one where an ignored or skipped
+    pub fn skipped_with_cause(name: &str, type_: &str, message: &str) -> Self {
+        TestCaseBuilder {
+            testcase: TestCase::skipped_with_cause(name, type_, message),
         }
     }
 
