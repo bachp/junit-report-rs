@@ -11,7 +11,7 @@ edition = "2021"
 
 [dependencies]
 derive-getters = "0.3.0"
-quick-xml = "0.30.0"
+quick-xml = "0.31.0"
 strip-ansi-escapes = "0.2.0"
 time = { version = "0.3.4", features = ["formatting", "macros"] }
 
