@@ -64,6 +64,7 @@ mod tests {
         datetime, Duration, Report, ReportBuilder, TestCase, TestCaseBuilder, TestSuite,
         TestSuiteBuilder,
     };
+    use pretty_assertions::assert_eq;
 
     #[test]
     fn empty_testsuites() {
@@ -360,10 +361,13 @@ mod tests {
       <system-out><![CDATA[Some sysout message]]></system-out>\
     </testcase>\
     <testcase name=\"error test\" time=\"5\">\
-      <error type=\"git error\" message=\"unable to fetch\"><![CDATA[Some syserror message]]></error>\
+      <error type=\"git error\" message=\"unable to fetch\"/>\
+      <system-err><![CDATA[Some syserror message]]></system-err>\
     </testcase>\
     <testcase name=\"failure test\" time=\"10\">\
-      <failure type=\"assert_eq\" message=\"not equal\"><![CDATA[System out or error message]]><![CDATA[Another system error message]]></failure>\
+      <failure type=\"assert_eq\" message=\"not equal\"/>\
+      <system-out><![CDATA[System out or error message]]></system-out>\
+      <system-err><![CDATA[Another system error message]]></system-err>\
     </testcase>\
   </testsuite>\
 </testsuites>",
