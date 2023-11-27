@@ -123,23 +123,49 @@ impl TestCase {
                         TestResult::Error {
                             ref type_,
                             ref message,
+                            ref cause,
                         } => w
                             .create_element("error")
                             .with_attributes([
                                 ("type", type_.as_str()),
                                 ("message", message.as_str()),
                             ])
-                            .write_empty(),
+                            .write_empty_or_inner(
+                                |_| cause.is_none(),
+                                |w| {
+                                    w.write_opt(cause.as_ref(), |w, cause| {
+                                        let data = BytesCData::new(cause.as_str());
+                                        w.write_event(Event::CData(BytesCData::new(
+                                            String::from_utf8_lossy(&data),
+                                        )))
+                                        .map(|_| w)
+                                    })
+                                    .map(drop)
+                                },
+                            ),
                         TestResult::Failure {
                             ref type_,
                             ref message,
+                            ref cause,
                         } => w
                             .create_element("failure")
                             .with_attributes([
                                 ("type", type_.as_str()),
                                 ("message", message.as_str()),
                             ])
-                            .write_empty(),
+                            .write_empty_or_inner(
+                                |_| cause.is_none(),
+                                |w| {
+                                    w.write_opt(cause.as_ref(), |w, cause| {
+                                        let data = BytesCData::new(cause.as_str());
+                                        w.write_event(Event::CData(BytesCData::new(
+                                            String::from_utf8_lossy(&data),
+                                        )))
+                                        .map(|_| w)
+                                    })
+                                    .map(drop)
+                                },
+                            ),
                         TestResult::Skipped => w.create_element("skipped").write_empty(),
                     }?
                     .write_opt(self.system_out.as_ref(), |w, out| {

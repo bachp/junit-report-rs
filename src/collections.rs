@@ -149,8 +149,16 @@ pub struct TestCase {
 pub enum TestResult {
     Success,
     Skipped,
-    Error { type_: String, message: String },
-    Failure { type_: String, message: String },
+    Error {
+        type_: String,
+        message: String,
+        cause: Option<String>,
+    },
+    Failure {
+        type_: String,
+        message: String,
+        cause: Option<String>,
+    },
 }
 
 impl TestCase {
@@ -202,6 +210,7 @@ impl TestCase {
             result: TestResult::Error {
                 type_: type_.into(),
                 message: message.into(),
+                cause: None,
             },
             classname: None,
             filepath: None,
@@ -225,6 +234,7 @@ impl TestCase {
             result: TestResult::Failure {
                 type_: type_.into(),
                 message: message.into(),
+                cause: None,
             },
             classname: None,
             filepath: None,
@@ -294,6 +304,18 @@ impl TestCaseBuilder {
     /// Set the `system_err` for the `TestCase`
     pub fn set_system_err(&mut self, system_err: &str) -> &mut Self {
         self.testcase.system_err = Some(system_err.to_owned());
+        self
+    }
+
+    /// Set the `result.trace` for the `TestCase`
+    ///
+    /// It has no effect on successful `TestCase`s.
+    pub fn set_trace(&mut self, trace: &str) -> &mut Self {
+        match self.testcase.result {
+            TestResult::Error { ref mut cause, .. } => *cause = Some(trace.to_owned()),
+            TestResult::Failure { ref mut cause, .. } => *cause = Some(trace.to_owned()),
+            _ => {}
+        }
         self
     }
 
