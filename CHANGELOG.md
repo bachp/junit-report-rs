@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.8.4] - 2023-12-07
+
+- Update dependencies
+- `system-err` and `system-out` are now independent of the test case result
+- Add `set_trace` function to add detailed trace to error or failure cases.
+
 ## [0.8.3] - 2023-10-23
 
 - Update dependencies
