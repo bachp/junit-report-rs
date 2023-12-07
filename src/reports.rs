@@ -119,18 +119,11 @@ impl TestCase {
                 },
                 |w| {
                     match self.result {
-                        TestResult::Success => w
-                            .write_opt(self.system_out.as_ref(), |w, out| {
-                                w.create_element("system-out")
-                                    .write_cdata_content(BytesCData::new(out.as_str()))
-                            })?
-                            .write_opt(self.system_err.as_ref(), |w, err| {
-                                w.create_element("system-err")
-                                    .write_cdata_content(BytesCData::new(err.as_str()))
-                            }),
+                        TestResult::Success => Ok(w),
                         TestResult::Error {
                             ref type_,
                             ref message,
+                            ref cause,
                         } => w
                             .create_element("error")
                             .with_attributes([
@@ -138,17 +131,10 @@ impl TestCase {
                                 ("message", message.as_str()),
                             ])
                             .write_empty_or_inner(
-                                |_| self.system_out.is_none() && self.system_err.is_none(),
+                                |_| cause.is_none(),
                                 |w| {
-                                    w.write_opt(self.system_out.as_ref(), |w, stdout| {
-                                        let data = strip_ansi_escapes::strip(stdout);
-                                        w.write_event(Event::CData(BytesCData::new(
-                                            String::from_utf8_lossy(&data),
-                                        )))
-                                        .map(|_| w)
-                                    })?
-                                    .write_opt(self.system_err.as_ref(), |w, stderr| {
-                                        let data = strip_ansi_escapes::strip(stderr);
+                                    w.write_opt(cause.as_ref(), |w, cause| {
+                                        let data = BytesCData::new(cause.as_str());
                                         w.write_event(Event::CData(BytesCData::new(
                                             String::from_utf8_lossy(&data),
                                         )))
@@ -160,6 +146,7 @@ impl TestCase {
                         TestResult::Failure {
                             ref type_,
                             ref message,
+                            ref cause,
                         } => w
                             .create_element("failure")
                             .with_attributes([
@@ -167,17 +154,10 @@ impl TestCase {
                                 ("message", message.as_str()),
                             ])
                             .write_empty_or_inner(
-                                |_| self.system_out.is_none() && self.system_err.is_none(),
+                                |_| cause.is_none(),
                                 |w| {
-                                    w.write_opt(self.system_out.as_ref(), |w, stdout| {
-                                        let data = strip_ansi_escapes::strip(stdout);
-                                        w.write_event(Event::CData(BytesCData::new(
-                                            String::from_utf8_lossy(&data),
-                                        )))
-                                        .map(|_| w)
-                                    })?
-                                    .write_opt(self.system_err.as_ref(), |w, stderr| {
-                                        let data = strip_ansi_escapes::strip(stderr);
+                                    w.write_opt(cause.as_ref(), |w, cause| {
+                                        let data = BytesCData::new(cause.as_str());
                                         w.write_event(Event::CData(BytesCData::new(
                                             String::from_utf8_lossy(&data),
                                         )))
@@ -187,7 +167,15 @@ impl TestCase {
                                 },
                             ),
                         TestResult::Skipped => w.create_element("skipped").write_empty(),
-                    }
+                    }?
+                    .write_opt(self.system_out.as_ref(), |w, out| {
+                        w.create_element("system-out")
+                            .write_cdata_content(BytesCData::new(out.as_str()))
+                    })?
+                    .write_opt(self.system_err.as_ref(), |w, err| {
+                        w.create_element("system-err")
+                            .write_cdata_content(BytesCData::new(err.as_str()))
+                    })
                     .map(drop)
                 },
             )

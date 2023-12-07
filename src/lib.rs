@@ -64,6 +64,7 @@ mod tests {
         datetime, Duration, Report, ReportBuilder, TestCase, TestCaseBuilder, TestSuite,
         TestSuiteBuilder,
     };
+    use pretty_assertions::assert_eq;
 
     #[test]
     fn empty_testsuites() {
@@ -360,10 +361,78 @@ mod tests {
       <system-out><![CDATA[Some sysout message]]></system-out>\
     </testcase>\
     <testcase name=\"error test\" time=\"5\">\
-      <error type=\"git error\" message=\"unable to fetch\"><![CDATA[Some syserror message]]></error>\
+      <error type=\"git error\" message=\"unable to fetch\"/>\
+      <system-err><![CDATA[Some syserror message]]></system-err>\
     </testcase>\
     <testcase name=\"failure test\" time=\"10\">\
-      <failure type=\"assert_eq\" message=\"not equal\"><![CDATA[System out or error message]]><![CDATA[Another system error message]]></failure>\
+      <failure type=\"assert_eq\" message=\"not equal\"/>\
+      <system-out><![CDATA[System out or error message]]></system-out>\
+      <system-err><![CDATA[Another system error message]]></system-err>\
+    </testcase>\
+  </testsuite>\
+</testsuites>",
+        );
+    }
+
+    #[test]
+    fn test_cases_with_trace() {
+        let timestamp = datetime!(1970-01-01 01:01 UTC);
+
+        let test_success = TestCaseBuilder::success("good test", Duration::milliseconds(15001))
+            .set_classname("MyClass")
+            .set_filepath("./foo.rs")
+            .set_trace("Some trace message") // This should be ignored
+            .build();
+        let test_error = TestCaseBuilder::error(
+            "error test",
+            Duration::seconds(5),
+            "git error",
+            "unable to fetch",
+        )
+        .set_trace("Some error trace")
+        .build();
+        let test_failure = TestCaseBuilder::failure(
+            "failure test",
+            Duration::seconds(10),
+            "assert_eq",
+            "not equal",
+        )
+        .set_trace("Some failure trace")
+        .build();
+
+        let ts1 = TestSuiteBuilder::new("ts1")
+            .set_timestamp(timestamp)
+            .build();
+        let ts2 = TestSuiteBuilder::new("ts2")
+            .set_timestamp(timestamp)
+            .add_testcase(test_success)
+            .add_testcase(test_error)
+            .add_testcase(test_failure)
+            .build();
+
+        let r = ReportBuilder::new()
+            .add_testsuite(ts1)
+            .add_testsuite(ts2)
+            .build();
+
+        let mut out: Vec<u8> = Vec::new();
+
+        r.write_xml(&mut out).unwrap();
+
+        // language=xml
+        assert_eq!(
+            String::from_utf8(out).unwrap(),
+            "\
+<?xml version=\"1.0\" encoding=\"utf-8\"?>\
+<testsuites>\
+  <testsuite id=\"0\" name=\"ts1\" package=\"testsuite/ts1\" tests=\"0\" errors=\"0\" failures=\"0\" hostname=\"localhost\" timestamp=\"1970-01-01T01:01:00Z\" time=\"0\"/>\
+  <testsuite id=\"1\" name=\"ts2\" package=\"testsuite/ts2\" tests=\"3\" errors=\"1\" failures=\"1\" hostname=\"localhost\" timestamp=\"1970-01-01T01:01:00Z\" time=\"30.001\">\
+    <testcase name=\"good test\" time=\"15.001\" classname=\"MyClass\" file=\"./foo.rs\"/>\
+    <testcase name=\"error test\" time=\"5\">\
+      <error type=\"git error\" message=\"unable to fetch\"><![CDATA[Some error trace]]></error>\
+    </testcase>\
+    <testcase name=\"failure test\" time=\"10\">\
+      <failure type=\"assert_eq\" message=\"not equal\"><![CDATA[Some failure trace]]></failure>\
     </testcase>\
   </testsuite>\
 </testsuites>",
