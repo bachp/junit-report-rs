@@ -13,7 +13,7 @@ edition = "2021"
 derive-getters = "0.3.0"
 quick-xml = "0.31.0"
 strip-ansi-escapes = "0.2.0"
-time = { version = "0.3.4", features = ["formatting", "macros"] }
+time = { version = "0.3.31", features = ["formatting", "macros"] }
 
 [dev-dependencies]
 doc-comment = "0.3.3"
