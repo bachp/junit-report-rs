@@ -18,6 +18,7 @@ pub struct TestSuite {
     pub testcases: Vec<TestCase>,
     pub system_out: Option<String>,
     pub system_err: Option<String>,
+    pub properties: Vec<Property>,
 }
 
 impl TestSuite {
@@ -31,6 +32,7 @@ impl TestSuite {
             testcases: Vec::new(),
             system_out: None,
             system_err: None,
+            properties: Vec::new(),
         }
     }
 
@@ -80,6 +82,16 @@ impl TestSuite {
             .iter()
             .fold(Duration::ZERO, |sum, d| sum + d.time)
     }
+
+    /// Add a [`Property`](struct.Property.html) to the `TestSuite`.
+    pub fn add_property(&mut self, property: Property) {
+        self.properties.push(property);
+    }
+
+    /// Add several [`Property`](struct.Property.html) from a Vec.
+    pub fn add_properties(&mut self, properties: impl IntoIterator<Item = Property>) {
+        self.properties.extend(properties);
+    }
 }
 
 ///  Builder for [`TestSuite`](struct.TestSuite.html) objects.
@@ -126,6 +138,18 @@ impl TestSuiteBuilder {
         self
     }
 
+    /// Add a [`Property`](struct.Property.html) to the `TestSuite`.
+    pub fn add_property(&mut self, property: Property) -> &mut Self {
+        self.testsuite.properties.push(property);
+        self
+    }
+
+    /// Add several [`Property`](struct.Property.html) from a Vec.
+    pub fn add_properties(&mut self, properties: impl IntoIterator<Item = Property>) -> &mut Self {
+        self.testsuite.properties.extend(properties);
+        self
+    }
+
     /// Build and return a [`TestSuite`](struct.TestSuite.html) object based on the data stored in this TestSuiteBuilder object.
     pub fn build(&self) -> TestSuite {
         self.testsuite.clone()
@@ -142,6 +166,7 @@ pub struct TestCase {
     pub filepath: Option<String>,
     pub system_out: Option<String>,
     pub system_err: Option<String>,
+    pub properties: Vec<Property>,
 }
 
 /// Result of a test case
@@ -172,6 +197,7 @@ impl TestCase {
             filepath: None,
             system_out: None,
             system_err: None,
+            properties: Vec::new(),
         }
     }
 
@@ -216,6 +242,7 @@ impl TestCase {
             filepath: None,
             system_out: None,
             system_err: None,
+            properties: Vec::new(),
         }
     }
 
@@ -240,6 +267,7 @@ impl TestCase {
             filepath: None,
             system_out: None,
             system_err: None,
+            properties: Vec::new(),
         }
     }
 
@@ -260,12 +288,23 @@ impl TestCase {
             filepath: None,
             system_out: None,
             system_err: None,
+            properties: Vec::new(),
         }
     }
 
     /// Check if a `TestCase` ignored
     pub fn is_skipped(&self) -> bool {
         matches!(self.result, TestResult::Skipped)
+    }
+
+    /// Add a [`Property`](struct.Property.html) to the `TestSuite`.
+    pub fn add_property(&mut self, property: Property) {
+        self.properties.push(property);
+    }
+
+    /// Add several [`Property`](struct.Property.html) from a Vec.
+    pub fn add_properties(&mut self, properties: impl IntoIterator<Item = Property>) {
+        self.properties.extend(properties);
     }
 }
 
@@ -346,10 +385,29 @@ impl TestCaseBuilder {
         }
     }
 
+    /// Add a [`Property`](struct.Property.html) to the `TestSuite`.
+    pub fn add_property(&mut self, property: Property) -> &mut Self {
+        self.testcase.properties.push(property);
+        self
+    }
+
+    /// Add several [`Property`](struct.Property.html) from a Vec.
+    pub fn add_properties(&mut self, properties: impl IntoIterator<Item = Property>) -> &mut Self {
+        self.testcase.properties.extend(properties);
+        self
+    }
+
     /// Build and return a [`TestCase`](struct.TestCase.html) object based on the data stored in this TestCaseBuilder object.
     pub fn build(&self) -> TestCase {
         self.testcase.clone()
     }
+}
+
+/// A `Property` element supported in TestCases and TestSuites
+#[derive(Debug, Clone, Getters)]
+pub struct Property {
+    pub name: String,
+    pub value: String,
 }
 
 // Make sure the readme is tested too
