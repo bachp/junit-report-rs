@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+- Remove strip-ansi-escapes dependencies
+- Only enable required features for time
+
 ## [0.8.4] - 2023-12-07
 
 - Update dependencies
@@ -27,7 +30,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [0.8.0] - 2022-09-09
 
 - Bump Rust edition to 2021
-# BREAKING CHANGES
+
+### BREAKING CHANGES
 - Switch from `xml-rs` to `quick-xml` due to maintenance status
   - Change `Err` type of `Report::write_xml()`
   - Remove indentations and newlines from the generated `Report`
@@ -37,14 +41,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Added support for an optional `file` attribute in test cases
 
 ## [0.7.0] - 2021-11-06
-# BREAKING CHANGES
+
+### BREAKING CHANGES
 - Switch from `chrono` to `time`
 - Switch timestamp formatting (still compliant with both `RFC3339` and `ISO8601`)
 
 ## [0.6.0] - 2021-07-20
 
 - Saparate builder types
-# BREAKING CHANGES
+
+### BREAKING CHANGES
 - Seprate types for the data types and the builders. This restores the old data based API from 0.3.0 and moves
 the builder API as introduced in 0.4.0 to their own *Builder types.
 - If you are migrating from 0.3.0 there should be no big changes required.
@@ -53,12 +59,11 @@ the builder API as introduced in 0.4.0 to their own *Builder types.
   TestSuite -> TestSuiteBuilder
   TestCase -> TestCaseBuilder
 
-
 ## [0.5.0] - 2021-06-15
 
-## Added
+### Added
 - Support for skipped or ignored testcases
-## BREAKING CHANGES
+### BREAKING CHANGES
 - Adding support for skipped and ignored testcases extends the `TestResult` struct by one more variant.
 
 ## [0.4.2] - 2021-05-28
@@ -75,10 +80,10 @@ the builder API as introduced in 0.4.0 to their own *Builder types.
 
 ## [0.4.0] - 2020-06-04
 
-## Added
+### Added
 - `system_out` and `system_err` fields added
 
-## BREAKING CHANGES
+### BREAKING CHANGES
 - Revamp the API to use the builder pattern. This makes the API more future proof and hopefully avoids breaking changes in the future when more optional fields are added.
 - Change error type to no longer expose the internals of the XML processing.
 
