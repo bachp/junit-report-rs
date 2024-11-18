@@ -1,4 +1,4 @@
-There seams to be no clear standard
+There seems to be no clear standard
 
 The best sources are:
 - https://stackoverflow.com/a/9410271/1045684
