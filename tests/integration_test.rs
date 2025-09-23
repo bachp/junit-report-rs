@@ -120,3 +120,20 @@ fn validate_generated_xml_schema() {
     eprint!("{}", String::from_utf8_lossy(&res.stderr));
     assert!(res.status.success());
 }
+
+#[test]
+fn newline_in_failure_message() {
+    let test_failure = TestCase::failure("Burk", Duration::seconds(10), "type", "foo\nbar");
+    let timestamp = datetime!(2018-04-21 12:02 UTC);
+    let ts1 = TestSuiteBuilder::new("Some Testsuite")
+        .set_timestamp(timestamp)
+        .add_testcase(test_failure)
+        .build();
+    let r = ReportBuilder::new().add_testsuite(ts1).build();
+    let mut out: Vec<u8> = Vec::new();
+    r.write_xml(&mut out).unwrap();
+    let report = String::from_utf8(out).unwrap();
+    println!("{}", report);
+    let expected = "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites><testsuite id=\"0\" name=\"Some Testsuite\" package=\"testsuite/Some Testsuite\" tests=\"1\" errors=\"0\" failures=\"1\" hostname=\"localhost\" timestamp=\"2018-04-21T12:02:00Z\" time=\"10\"><testcase name=\"Burk\" time=\"10\"><failure type=\"type\" message=\"foo&#10;bar\"/></testcase></testsuite></testsuites>";
+    assert!(report == expected);
+}
