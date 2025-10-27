@@ -15,7 +15,7 @@ quick-xml = "0.36.2"
 time = { version = "0.3.44", features = ["formatting", "macros"], default-features = false }
 
 [dev-dependencies]
-doc-comment = "0.3.3"
+doc-comment = "0.3.4"
 once_cell = "1.21"
 pretty_assertions = "1.4.1"
 regex = "1.12"
