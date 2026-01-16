@@ -48,9 +48,10 @@
 //! ```
 
 mod collections;
+mod error;
 mod reports;
 
-pub use quick_xml::Error;
+pub use error::Error;
 pub use time::{macros::datetime, Duration, OffsetDateTime};
 
 pub use crate::{
