@@ -11,11 +11,13 @@ use derive_getters::Getters;
 use quick_xml::events::BytesDecl;
 use quick_xml::{
     events::{BytesCData, Event},
-    ElementWriter, Result, Writer,
+    ElementWriter, Writer,
 };
 use time::format_description::well_known::Rfc3339;
 
-use crate::{TestCase, TestResult, TestSuite};
+use crate::{Error, TestCase, TestResult, TestSuite};
+
+type Result<T> = std::result::Result<T, Error>;
 
 /// Root element of a JUnit report
 #[derive(Default, Debug, Clone, Getters)]
@@ -79,11 +81,13 @@ impl Report {
                                             writer
                                                 .create_element("system-out")
                                                 .write_cdata_content(BytesCData::new(out))
+                                                .map_err(Error::from)
                                         })?
                                         .write_opt(ts.system_err.as_ref(), |writer, err| {
                                             writer
                                                 .create_element("system-err")
                                                 .write_cdata_content(BytesCData::new(err))
+                                                .map_err(Error::from)
                                         })
                                         .map(drop)
                                 },
@@ -138,6 +142,7 @@ impl TestCase {
                                         w.write_event(Event::CData(BytesCData::new(
                                             String::from_utf8_lossy(&data),
                                         )))
+                                        .map_err(Error::from)
                                         .map(|_| w)
                                     })
                                     .map(drop)
@@ -161,21 +166,33 @@ impl TestCase {
                                         w.write_event(Event::CData(BytesCData::new(
                                             String::from_utf8_lossy(&data),
                                         )))
+                                        .map_err(Error::from)
                                         .map(|_| w)
                                     })
                                     .map(drop)
                                 },
                             ),
-                        TestResult::Skipped => w.create_element("skipped").write_empty(),
+                        TestResult::Skipped => w
+                            .create_element("skipped")
+                            .write_empty()
+                            .map_err(Error::from),
                     }?
-                    .write_opt(self.system_out.as_ref(), |w, out| {
-                        w.create_element("system-out")
-                            .write_cdata_content(BytesCData::new(out.as_str()))
-                    })?
-                    .write_opt(self.system_err.as_ref(), |w, err| {
-                        w.create_element("system-err")
-                            .write_cdata_content(BytesCData::new(err.as_str()))
-                    })
+                    .write_opt(
+                        self.system_out.as_ref(),
+                        |w: &mut Writer<W>, out: &String| {
+                            w.create_element("system-out")
+                                .write_cdata_content(BytesCData::new(out))
+                                .map_err(Error::from)
+                        },
+                    )?
+                    .write_opt(
+                        self.system_err.as_ref(),
+                        |w: &mut Writer<W>, err: &String| {
+                            w.create_element("system-err")
+                                .write_cdata_content(BytesCData::new(err))
+                                .map_err(Error::from)
+                        },
+                    )
                     .map(drop)
                 },
             )
@@ -283,9 +300,15 @@ impl<'a, W: Write> ElementWriterExt<'a, W> for ElementWriter<'a, W> {
         Inner: Fn(&mut Writer<W>) -> Result<()>,
     {
         if is_empty(&mut self) {
-            self.write_empty()
+            self.write_empty().map_err(Error::from)
         } else {
-            self.write_inner_content(inner)
+            let inner = |w: &mut Writer<W>| {
+                inner(w).map_err(|e| match e {
+                    Error::Xml(xml_e) => std::io::Error::other(format!("XML error: {xml_e}")),
+                    Error::Io(io_e) => io_e,
+                })
+            };
+            self.write_inner_content(inner).map_err(Error::from)
         }
     }
 }
