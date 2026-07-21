@@ -25,7 +25,7 @@ impl TestSuite {
     pub fn new(name: &str) -> Self {
         TestSuite {
             hostname: "localhost".into(),
-            package: format!("testsuite/{}", &name),
+            package: format!("testsuite/{}", name),
             name: name.into(),
             timestamp: OffsetDateTime::now_utc(),
             testcases: Vec::new(),
