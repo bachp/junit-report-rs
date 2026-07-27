@@ -42,7 +42,7 @@ checksum = "780955b8b195a21ab8e4ac6b60dd1dbdcec1dc6c51c0617964b08c81785e12c9"
 
 [[package]]
 name = "junit-report"
-version = "0.9.0"
+version = "0.9.1"
 dependencies = [
  "derive-getters",
  "doc-comment",
