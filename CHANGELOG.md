@@ -6,10 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-07-27
+
+- Update dependencies
+
 ## [0.9.0] - 2026-04-15
 
 - Remove strip-ansi-escapes dependencies
 - Only enable required features for time
+- Added new SkippedWithCause test result
 
 ## [0.8.4] - 2023-12-07
 
