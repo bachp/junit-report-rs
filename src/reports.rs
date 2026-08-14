@@ -10,9 +10,10 @@ use std::io::Write;
 use derive_getters::Getters;
 use quick_xml::events::BytesDecl;
 use quick_xml::{
-    events::{BytesCData, Event},
+    events::{BytesAttr, BytesCData, Event},
     ElementWriter, Writer,
 };
+use std::borrow::Cow;
 use time::format_description::well_known::Rfc3339;
 
 use crate::{Error, TestCase, TestResult, TestSuite};
@@ -100,6 +101,23 @@ impl Report {
     }
 }
 
+fn escape_xml_attr(s: &str) -> String {
+    let mut out = String::with_capacity(s.len() + 10);
+    for c in s.chars() {
+        match c {
+            '"' => out.push_str("&quot;"),
+            '&' => out.push_str("&amp;"),
+            '<' => out.push_str("&lt;"),
+            '>' => out.push_str("&gt;"),
+            '\'' => out.push_str("&apos;"),
+            '\n' => out.push_str("&#10;"),
+            '\r' => out.push_str("&#13;"),
+            _ => out.push(c),
+        }
+    }
+    out
+}
+
 impl TestCase {
     /// Write the XML version of the [`TestCase`] to the given [`Writer`].
     fn write_xml<'a, W: Write>(&self, w: &'a mut Writer<W>) -> Result<&'a mut Writer<W>> {
@@ -131,8 +149,8 @@ impl TestCase {
                         } => w
                             .create_element("error")
                             .with_attributes([
-                                ("type", type_.as_str()),
-                                ("message", message.as_str()),
+                                BytesAttr::new_unchecked(("type", Cow::Owned(escape_xml_attr(type_).into_bytes()))),
+                                BytesAttr::new_unchecked(("message", Cow::Owned(escape_xml_attr(message).into_bytes()))),
                             ])
                             .write_empty_or_inner(
                                 |_| cause.is_none(),
@@ -155,8 +173,8 @@ impl TestCase {
                         } => w
                             .create_element("failure")
                             .with_attributes([
-                                ("type", type_.as_str()),
-                                ("message", message.as_str()),
+                                BytesAttr::new_unchecked(("type", Cow::Owned(escape_xml_attr(type_).into_bytes()))),
+                                BytesAttr::new_unchecked(("message", Cow::Owned(escape_xml_attr(message).into_bytes()))),
                             ])
                             .write_empty_or_inner(
                                 |_| cause.is_none(),
@@ -183,8 +201,8 @@ impl TestCase {
                         } => w
                             .create_element("skipped")
                             .with_attributes([
-                                ("type", type_.as_str()),
-                                ("message", message.as_str()),
+                                BytesAttr::new_unchecked(("type", Cow::Owned(escape_xml_attr(type_).into_bytes()))),
+                                BytesAttr::new_unchecked(("message", Cow::Owned(escape_xml_attr(message).into_bytes()))),
                             ])
                             .write_empty_or_inner(
                                 |_| cause.is_none(),
