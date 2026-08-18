@@ -10,8 +10,8 @@ use std::io::Write;
 use derive_getters::Getters;
 use quick_xml::events::BytesDecl;
 use quick_xml::{
-    events::{BytesCData, Event},
     ElementWriter, Writer,
+    events::{BytesCData, Event},
 };
 use time::format_description::well_known::Rfc3339;
 

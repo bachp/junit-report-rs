@@ -52,7 +52,7 @@ mod error;
 mod reports;
 
 pub use error::Error;
-pub use time::{macros::datetime, Duration, OffsetDateTime};
+pub use time::{Duration, OffsetDateTime, macros::datetime};
 
 pub use crate::{
     collections::{TestCase, TestCaseBuilder, TestResult, TestSuite, TestSuiteBuilder},
@@ -62,8 +62,8 @@ pub use crate::{
 #[cfg(test)]
 mod tests {
     use crate::{
-        datetime, Duration, Report, ReportBuilder, TestCase, TestCaseBuilder, TestSuite,
-        TestSuiteBuilder,
+        Duration, Report, ReportBuilder, TestCase, TestCaseBuilder, TestSuite, TestSuiteBuilder,
+        datetime,
     };
     use pretty_assertions::assert_eq;
 

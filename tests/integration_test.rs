@@ -9,7 +9,7 @@ use std::fs::{self, File};
 use std::process::Command;
 
 use junit_report::{
-    datetime, Duration, ReportBuilder, TestCase, TestCaseBuilder, TestSuiteBuilder,
+    Duration, ReportBuilder, TestCase, TestCaseBuilder, TestSuiteBuilder, datetime,
 };
 use once_cell::sync::Lazy;
 use regex::{Regex, RegexBuilder};
