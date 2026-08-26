@@ -11,7 +11,7 @@ edition = "2024"
 
 [dependencies]
 derive-getters = "0.5.0"
-quick-xml = "0.41"
+quick-xml = "0.42"
 time = { version = "0.3.47", features = ["formatting", "macros"], default-features = false }
 
 
